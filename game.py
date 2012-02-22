@@ -6,7 +6,7 @@
 
 import time, random
 import pygame, sys
-import thread
+import thread, sqlite3
 from pygame.locals import *
 
 #most important:
@@ -28,6 +28,13 @@ WHITE = (255, 255, 255)
 RED   = (255,   0,   0)
 GREEN = (  0, 255,   0)
 BLUE  = (  0,   0, 255)
+
+#Savegames!
+db = sqlite3.connect("saves.db")
+c = connection.cursor()
+sql = 'create table if not exists efhagame (name str, score integer)'
+c.execute(sql)
+db.commit()
 
 #How it all starts
 pygame.init()
@@ -61,19 +68,35 @@ direction = directions[random2Bit]
 start_rect = dongleImg.get_rect()
 image_rect = start_rect
 
+#init data for the info screen
 fontObj = pygame.font.Font('ts.ttf', 42)
 textSurfaceObj = fontObj.render('GLOCK THE DONGLE!', True, RED, BLACK)
 textRectObj = textSurfaceObj.get_rect()
 textRectObj.center = (400, 250)
 
+#init data for debugging
+debugFont = pygame.font.Font(None, 42)
+debugSurface = debugFont.render('DEBUG MODE ENABLED!', True, BLACK, WHITE)
+debugRect = debugSurface.get_rect()
+debugRect.center = (400, 650)
+
+#init data for debugging
+hiScoreFont = pygame.font.Font(None, 66)
+hiScoreRect = hiScoreSurface.get_rect()
+hiScoreRect.center = (resulution[0] / 2, 100)
+
+
 cursize = [background.get_width(), background.get_height()]
 
 #starting point value
 primitivesHit = 0
+itsAboutTime = False
 
 #pygame.draw.polygon(SCREEN, GREEN, ((146, 0), (291, 106), (236, 277), (56, 277), (0, 106)))
 
 while True:
+    
+    oldScore = primitivesHit
 
     pygame.display.set_caption(direction + " dongleX: " + str(dongleX) + " dongleY: " + str(dongleY))
 
@@ -87,7 +110,24 @@ while True:
 
     # exit on corner 'x' click or escape key press
     if keyinput[pygame.K_ESCAPE]:
-                raise SystemExit
+        #save state
+        stats = [ os.getusername(), oldScore ] 
+        c.execute("INSERT INTO efhagame VALUES (?,?)", stats)
+        db.commit()
+        #show highscore
+        SCREEN.fill(BLACK)
+        hiScoreSurface = hiScoreFont.render('DEBUG MODE ENABLED!', True, BLACK, WHITE)
+        
+        c.execute("select x from efhagame order by score")
+        hiScoreList = c.fetchall()
+        winnerlist = ''
+        for name in hiScoreList:
+            winnerlist += #KAMILHILF!
+
+        SCREEN.blit(hiScoreSurface, hiScoreRect)
+        pygame.display.update()
+        sleep(3)
+        raise SystemExit
 
     devote_offerings_to_rng()
     #either move erratically
@@ -127,8 +167,11 @@ while True:
                 direction = 'right'
 
     SCREEN.blit(dongleImg, (dongleX, dongleY))
+    #on screen information like points
     SCREEN.blit(textSurfaceObj, textRectObj)
 
+    #debug screen
+    SCREEN.blit(debugSurface, debugRect)
 
     graphicsPrimitivePressed = 0
     for event in pygame.event.get():
@@ -141,7 +184,6 @@ while True:
 
             # Test for 'collision'
             if dongleX - 10 < mouse_x < dongleX + dongleImg.get_width() and dongleY - 10 < mouse_y < dongleY + dongleImg.get_height():
-                graphicsPrimitivePressed = 1200
                 pygame.display.set_caption("DONGLE HIT!")
                 thread.start_new_thread(soundObj.play,())
                 soundObj.stop()
@@ -149,11 +191,21 @@ while True:
                 primitivesHit += 1
                 textSurfaceObj = fontObj.render('SCORE: ' + str(primitivesHit), True, RED, BLACK)
 
+    #debugSurface = debugFont.render('ENTERING', True, BLACK, WHITE)
     #gore mode
-    if not graphicsPrimitivePressed == 0:
+    if oldScore != primitivesHit or itsAboutTime:
+        if not itsAboutTime:
+            #debugSurface = debugFont.render('NOT', True, BLACK, WHITE)
+            hitMoment = pygame.time.get_ticks()
+            itsAboutTime = True
+        elif itsAboutTime:
+            #debugSurface = debugFont.render('TIME', True, BLACK, WHITE)
+            #its about time when one multiplicated by 1000 milliseconds passed
+            if pygame.time.get_ticks() - hitMoment > 3 * 1000:
+                itsAboutTime = False
         middleOfPrimitive = [dongleImg.get_width()/2 + dongleX, dongleImg.get_height()/2 + dongleY]
         SCREEN.blit(bloodImg, middleOfPrimitive)
-        graphicsPrimitivePressed -= 1
+
 
     pygame.display.update()
     fpsClock.tick(FPS)
