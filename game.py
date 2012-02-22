@@ -63,34 +63,36 @@ while True:
     if keyinput[pygame.K_ESCAPE]:
                 raise SystemExit
 
-    randomStep = random.randint(0,10)
-    if direction == 'right':
-        dongleX += 5
-        if dongleX > cursize[0] - dongleImg.get_height():
-            pygame.display.set_caption("OMGOMGOMG")
-            direction = 'down'
-    elif direction == 'down':
-        dongleY += 5
-        if dongleY > cursize[1] - dongleImg.get_width():
-            direction = 'left'
-    elif direction == 'left':
-        dongleX -= 5
-        if dongleX < 10:
-            direction = 'up'
-    elif direction == 'up':
-        dongleY -= 5
-        if dongleY < 10:
-            direction = 'right'
-
+    randomStep = random.randint(0,5) + 3
+    #either move erratically
     if random.getrandbits(1) == 1:
         rand = random.getrandbits(3)
         if rand ==  0:
-            dongleX += random.randint(0,5) 
+            dongleX += randomStep
         elif rand == 1:
-            dongleY -= random.randint(0,5)
+            dongleY -= randomStep
         elif rand == 1:
-            dongleX -= random.randint(0,3)
-            dongleY += random.randint(0,3)
+            dongleX -= randomStep
+            dongleY += randomStep
+    #else move in a circle around the screen
+    else:
+        if direction == 'right':
+            dongleX += randomStep
+            if dongleX > cursize[0] - dongleImg.get_height() * 2 :
+                pygame.display.set_caption("OMGOMGOMG")
+                direction = 'down'
+        elif direction == 'down':
+            dongleY += randomStep
+            if dongleY > cursize[1] - dongleImg.get_width() * 2:
+                direction = 'left'
+        elif direction == 'left':
+            dongleX -= randomStep
+            if dongleX < 10:
+                direction = 'up'
+        elif direction == 'up':
+            dongleY -= randomStep
+            if dongleY < 10:
+                direction = 'right'
 
     SCREEN.blit(dongleImg, (dongleX, dongleY))
     SCREEN.blit(textSurfaceObj, textRectObj)
