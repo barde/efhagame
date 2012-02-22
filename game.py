@@ -33,7 +33,7 @@ BLUE  = (  0,   0, 255)
 pygame.init()
 
 #desired framrate
-FPS = 30
+FPS = 70
 fpsClock = pygame.time.Clock()
 
 #Music comes into play
@@ -61,7 +61,7 @@ start_rect = dongleImg.get_rect()
 image_rect = start_rect
 
 fontObj = pygame.font.Font('freesansbold.ttf', 42)
-textSurfaceObj = fontObj.render('KILL THE DONGLE!', True, RED, BLACK)
+textSurfaceObj = fontObj.render('GLOCK THE DONGLE!', True, RED, BLACK)
 textRectObj = textSurfaceObj.get_rect()
 textRectObj.center = (400, 250)
 
@@ -93,11 +93,14 @@ while True:
             dongleX += randomStep
         elif random2Bit == 1:
             dongleY -= randomStep
-        elif random2Bit == 1:
+        elif random2Bit == 2:
             dongleX -= randomStep
+        elif random2Bit == 3:
             dongleY += randomStep
     elif random2Bit == 2:
-        direction = directions[random2Bit]
+        devote_offerings_to_rng()
+        if random2Bit == 0:
+            direction = directions[random2Bit]
     #else move in a circle around the screen
     else:
         if direction == 'right':
