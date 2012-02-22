@@ -26,11 +26,13 @@ soundObj.stop()
 
 
 #drawing size
-SCREEN = pygame.display.set_mode((500,400),0,32)
+background = pygame.image.load('irc.png')
+SCREEN = pygame.display.set_mode((1280, 800), pygame.FULLSCREEN)
+#background = background.convert_alpha()
 
 dongleImg = pygame.image.load('dongle.png')
-dongleX = 5
-dongleY = 5
+dongleX = random.randint(0,1000)
+dongleY = random.randint(0,800)
 direction = 'right'
 
 start_rect = dongleImg.get_rect()
@@ -41,12 +43,18 @@ textSurfaceObj = fontObj.render('KILL THE DONGLE!', True, RED, BLACK)
 textRectObj = textSurfaceObj.get_rect()
 textRectObj.center = (200, 150)
 
+cursize = [background.get_width(), background.get_height()]
 
 #pygame.draw.polygon(SCREEN, GREEN, ((146, 0), (291, 106), (236, 277), (56, 277), (0, 106)))
 
 while True:
+
     pygame.display.set_caption(direction + " dongleX: " + str(dongleX) + " dongleY: " + str(dongleY))
-    SCREEN.fill(WHITE)
+
+    ircimage = pygame.transform.smoothscale(background, cursize)
+    imgpos = ircimage.get_rect(centerx=640, centery=400)
+    SCREEN.fill(BLACK)
+    SCREEN.blit(ircimage,imgpos) 
 
     event = pygame.event.poll()
     keyinput = pygame.key.get_pressed()
@@ -55,14 +63,15 @@ while True:
     if keyinput[pygame.K_ESCAPE]:
                 raise SystemExit
 
+    randomStep = random.randint(0,10)
     if direction == 'right':
         dongleX += 5
-        if dongleX > 280:
+        if dongleX > cursize[0] - dongleImg.get_height():
             pygame.display.set_caption("OMGOMGOMG")
             direction = 'down'
     elif direction == 'down':
         dongleY += 5
-        if dongleY > 220:
+        if dongleY > cursize[1] - dongleImg.get_width():
             direction = 'left'
     elif direction == 'left':
         dongleX -= 5
