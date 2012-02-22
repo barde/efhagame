@@ -60,7 +60,7 @@ direction = directions[random2Bit]
 start_rect = dongleImg.get_rect()
 image_rect = start_rect
 
-fontObj = pygame.font.Font('freesansbold.ttf', 42)
+fontObj = pygame.font.Font('ts.ttf', 42)
 textSurfaceObj = fontObj.render('GLOCK THE DONGLE!', True, RED, BLACK)
 textRectObj = textSurfaceObj.get_rect()
 textRectObj.center = (400, 250)
