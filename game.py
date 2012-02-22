@@ -15,7 +15,7 @@ random2Bit = 0
 
 def devote_offerings_to_rng():
     global randomStep, random2Bit
-    randomStep = random.randint(0,5) + 3
+    randomStep = random.randint(0,5) + 5
     random2Bit = random.getrandbits(2)
 
 devote_offerings_to_rng()
@@ -50,6 +50,7 @@ SCREEN = pygame.display.set_mode(resolution, pygame.FULLSCREEN)
 
 #the desired graphics primitive gets alpha channeled if png with per pixel transparency
 dongleImg = pygame.image.load('dongle.png').convert_alpha()
+bloodImg = pygame.image.load('blood.png').convert_alpha()
 #put it somewhere on the screen
 dongleX = random.randint(0,resolution[0] - dongleImg.get_width() * 2)
 dongleY = random.randint(0,resolution[1] - dongleImg.get_height() * 2)
@@ -66,6 +67,9 @@ textRectObj = textSurfaceObj.get_rect()
 textRectObj.center = (400, 250)
 
 cursize = [background.get_width(), background.get_height()]
+
+#starting point value
+primitivesHit = 0
 
 #pygame.draw.polygon(SCREEN, GREEN, ((146, 0), (291, 106), (236, 277), (56, 277), (0, 106)))
 
@@ -89,17 +93,18 @@ while True:
     #either move erratically
     if random2Bit == 1:
         devote_offerings_to_rng()
-        if random2Bit ==  0:
-            dongleX += randomStep
-        elif random2Bit == 1:
-            dongleY -= randomStep
-        elif random2Bit == 2:
-            dongleX -= randomStep
-        elif random2Bit == 3:
-            dongleY += randomStep
-    elif random2Bit == 2:
-        devote_offerings_to_rng()
+        if random2Bit == 0 :
+            devote_offerings_to_rng()
+            if random2Bit ==  0:
+                dongleX += randomStep
+            elif random2Bit == 1:
+                dongleY -= randomStep
+            elif random2Bit == 2:
+                dongleX -= randomStep
+            elif random2Bit == 3:
+                dongleY += randomStep
         if random2Bit == 0:
+            devote_offerings_to_rng()
             direction = directions[random2Bit]
     #else move in a circle around the screen
     else:
@@ -125,6 +130,7 @@ while True:
     SCREEN.blit(textSurfaceObj, textRectObj)
 
 
+    graphicsPrimitivePressed = 0
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
@@ -135,10 +141,19 @@ while True:
 
             # Test for 'collision'
             if dongleX - 10 < mouse_x < dongleX + dongleImg.get_width() and dongleY - 10 < mouse_y < dongleY + dongleImg.get_height():
+                graphicsPrimitivePressed = 1200
                 pygame.display.set_caption("DONGLE HIT!")
-                soundObj.play()
-                time.sleep(1) # wait and let the sound play for 1 second
+                thread.start_new_thread(soundObj.play,())
                 soundObj.stop()
+                #hit counter
+                primitivesHit += 1
+                textSurfaceObj = fontObj.render('SCORE: ' + str(primitivesHit), True, RED, BLACK)
+
+    #gore mode
+    if not graphicsPrimitivePressed == 0:
+        middleOfPrimitive = [dongleImg.get_width()/2 + dongleX, dongleImg.get_height()/2 + dongleY]
+        SCREEN.blit(bloodImg, middleOfPrimitive)
+        graphicsPrimitivePressed -= 1
 
     pygame.display.update()
     fpsClock.tick(FPS)
