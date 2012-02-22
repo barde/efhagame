@@ -1,9 +1,27 @@
 #!/usr/bin/python
+#2012 Bartholomaeus Dedersen
+#A game
+#Honourable mention: Designer of Tannenberg Font
+#                    PyGame crew
 
 import time, random
 import pygame, sys
+import thread
 from pygame.locals import *
 
+#most important:
+randomStep = 0
+random2Bit = 0
+
+def devote_offerings_to_rng():
+    global randomStep, random2Bit
+    randomStep = random.randint(0,5) + 3
+    random2Bit = random.getrandbits(2)
+
+devote_offerings_to_rng()
+
+######
+#Init all stuff
 # set up the colors
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
@@ -20,28 +38,32 @@ fpsClock = pygame.time.Clock()
 
 #Music comes into play
 soundObj = pygame.mixer.Sound('wscream.ogg')
-soundObj.play()
-time.sleep(1) # wait and let the sound play for 1 second
-soundObj.stop()
+backgroundSong = pygame.mixer.Sound('bckground.ogg')
+thread.start_new_thread(backgroundSong.play,())
 
 
 #drawing size
+resolution = [1280, 800]
 background = pygame.image.load('irc.png')
-SCREEN = pygame.display.set_mode((1280, 800), pygame.FULLSCREEN)
+SCREEN = pygame.display.set_mode(resolution, pygame.FULLSCREEN)
 #background = background.convert_alpha()
 
-dongleImg = pygame.image.load('dongle.png')
-dongleX = random.randint(0,1000)
-dongleY = random.randint(0,800)
-direction = 'right'
+#the desired graphics primitive gets alpha channeled if png with per pixel transparency
+dongleImg = pygame.image.load('dongle.png').convert_alpha()
+#put it somewhere on the screen
+dongleX = random.randint(0,resolution[0] - dongleImg.get_width() * 2)
+dongleY = random.randint(0,resolution[1] - dongleImg.get_height() * 2)
+#and let it go in some direction
+directions = ['right', 'left', 'up', 'down']
+direction = directions[random2Bit]
 
 start_rect = dongleImg.get_rect()
 image_rect = start_rect
 
-fontObj = pygame.font.Font('freesansbold.ttf', 32)
+fontObj = pygame.font.Font('freesansbold.ttf', 42)
 textSurfaceObj = fontObj.render('KILL THE DONGLE!', True, RED, BLACK)
 textRectObj = textSurfaceObj.get_rect()
-textRectObj.center = (200, 150)
+textRectObj.center = (400, 250)
 
 cursize = [background.get_width(), background.get_height()]
 
@@ -63,17 +85,19 @@ while True:
     if keyinput[pygame.K_ESCAPE]:
                 raise SystemExit
 
-    randomStep = random.randint(0,5) + 3
+    devote_offerings_to_rng()
     #either move erratically
-    if random.getrandbits(1) == 1:
-        rand = random.getrandbits(3)
-        if rand ==  0:
+    if random2Bit == 1:
+        devote_offerings_to_rng()
+        if random2Bit ==  0:
             dongleX += randomStep
-        elif rand == 1:
+        elif random2Bit == 1:
             dongleY -= randomStep
-        elif rand == 1:
+        elif random2Bit == 1:
             dongleX -= randomStep
             dongleY += randomStep
+    elif random2Bit == 2:
+        direction = directions[random2Bit]
     #else move in a circle around the screen
     else:
         if direction == 'right':
