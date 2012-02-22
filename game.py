@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import time
+import time, random
 import pygame, sys
 from pygame.locals import *
 
@@ -62,16 +62,26 @@ while True:
             direction = 'down'
     elif direction == 'down':
         dongleY += 5
-        if dongleY == 220:
+        if dongleY > 220:
             direction = 'left'
     elif direction == 'left':
         dongleX -= 5
-        if dongleX == 10:
+        if dongleX < 10:
             direction = 'up'
     elif direction == 'up':
         dongleY -= 5
-        if dongleY == 10:
+        if dongleY < 10:
             direction = 'right'
+
+    if random.getrandbits(1) == 1:
+        rand = random.getrandbits(3)
+        if rand ==  0:
+            dongleX += random.randint(0,5) 
+        elif rand == 1:
+            dongleY -= random.randint(0,5)
+        elif rand == 1:
+            dongleX -= random.randint(0,3)
+            dongleY += random.randint(0,3)
 
     SCREEN.blit(dongleImg, (dongleX, dongleY))
     SCREEN.blit(textSurfaceObj, textRectObj)
