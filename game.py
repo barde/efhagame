@@ -31,7 +31,7 @@ BLUE  = (  0,   0, 255)
 
 #Savegames!
 db = sqlite3.connect("saves.db")
-c = connection.cursor()
+c = db.cursor()
 sql = 'create table if not exists efhagame (name str, score integer)'
 c.execute(sql)
 db.commit()
@@ -82,8 +82,9 @@ debugRect.center = (400, 650)
 
 #init data for debugging
 hiScoreFont = pygame.font.Font(None, 66)
+hiScoreSurface = hiScoreFont.render('THE BEST OF THE BEST:', True, BLACK, WHITE)
 hiScoreRect = hiScoreSurface.get_rect()
-hiScoreRect.center = (resulution[0] / 2, 100)
+hiScoreRect.center = (resolution[0] / 2, 100)
 
 
 cursize = [background.get_width(), background.get_height()]
@@ -116,13 +117,12 @@ while True:
         db.commit()
         #show highscore
         SCREEN.fill(BLACK)
-        hiScoreSurface = hiScoreFont.render('DEBUG MODE ENABLED!', True, BLACK, WHITE)
-        
-        c.execute("select x from efhagame order by score")
-        hiScoreList = c.fetchall()
-        winnerlist = ''
-        for name in hiScoreList:
-            winnerlist += #KAMILHILF!
+        hiScoreSurface = hiScoreFont.render('THE BEST OF THE BEST:', True, BLACK, WHITE)
+        #c.execute("select x from efhagame order by score")
+        #hiScoreList = c.fetchall()
+        #winnerlist = ''
+        #for name in hiScoreList:
+        #    winnerlist += #KAMILHILF!
 
         SCREEN.blit(hiScoreSurface, hiScoreRect)
         pygame.display.update()
