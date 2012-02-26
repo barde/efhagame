@@ -89,28 +89,13 @@ hiScoreRect.center = (resolution[0] / 2, 100)
 
 cursize = [background.get_width(), background.get_height()]
 
-#starting point value
-primitivesHit = 0
-itsAboutTime = False
 
 #pygame.draw.polygon(SCREEN, GREEN, ((146, 0), (291, 106), (236, 277), (56, 277), (0, 106)))
 
-while True:
-    
-    oldScore = primitivesHit
+    def showStartScreen():
+        print 1
 
-    pygame.display.set_caption(direction + " dongleX: " + str(dongleX) + " dongleY: " + str(dongleY))
-
-    ircimage = pygame.transform.smoothscale(background, cursize)
-    imgpos = ircimage.get_rect(centerx=640, centery=400)
-    SCREEN.fill(BLACK)
-    SCREEN.blit(ircimage,imgpos) 
-
-    event = pygame.event.poll()
-    keyinput = pygame.key.get_pressed()
-
-    # exit on corner 'x' click or escape key press
-    if keyinput[pygame.K_ESCAPE]:
+    def showHighScore():
         #save state
         stats = [ os.getusername(), oldScore ] 
         c.execute("INSERT INTO efhagame VALUES (?,?)", stats)
@@ -129,72 +114,93 @@ while True:
         sleep(3)
         raise SystemExit
 
-    devote_offerings_to_rng()
-    #either move erratically
-    if random2Bit == 1:
+    def playGame():
+        #starting point value
+        primitivesHit = 0
+        itsAboutTime = False
+
+        oldScore = primitivesHit
+
+        pygame.display.set_caption(direction + " dongleX: " + str(dongleX) + " dongleY: " + str(dongleY))
+
+        ircimage = pygame.transform.smoothscale(background, cursize)
+        imgpos = ircimage.get_rect(centerx=640, centery=400)
+        SCREEN.fill(BLACK)
+        SCREEN.blit(ircimage,imgpos) 
+
+        event = pygame.event.poll()
+        keyinput = pygame.key.get_pressed()
+
+        # exit on corner 'x' click or escape key press
+        if keyinput[pygame.K_ESCAPE]:
+            showHighScore()
+
         devote_offerings_to_rng()
-        if random2Bit == 0 :
+        #either move erratically
+        if random2Bit == 1:
             devote_offerings_to_rng()
-            if random2Bit ==  0:
+            if random2Bit == 0 :
+                devote_offerings_to_rng()
+                if random2Bit ==  0:
+                    dongleX += randomStep
+                elif random2Bit == 1:
+                    dongleY -= randomStep
+                elif random2Bit == 2:
+                    dongleX -= randomStep
+                elif random2Bit == 3:
+                    dongleY += randomStep
+            if random2Bit == 0:
+                devote_offerings_to_rng()
+                direction = directions[random2Bit]
+        #else move in a circle around the screen
+        else:
+            if direction == 'right':
                 dongleX += randomStep
-            elif random2Bit == 1:
-                dongleY -= randomStep
-            elif random2Bit == 2:
-                dongleX -= randomStep
-            elif random2Bit == 3:
+                if dongleX > cursize[0] - dongleImg.get_height() * 2 :
+                    pygame.display.set_caption("OMGOMGOMG")
+                    direction = 'down'
+            elif direction == 'down':
                 dongleY += randomStep
-        if random2Bit == 0:
-            devote_offerings_to_rng()
-            direction = directions[random2Bit]
-    #else move in a circle around the screen
-    else:
-        if direction == 'right':
-            dongleX += randomStep
-            if dongleX > cursize[0] - dongleImg.get_height() * 2 :
-                pygame.display.set_caption("OMGOMGOMG")
-                direction = 'down'
-        elif direction == 'down':
-            dongleY += randomStep
-            if dongleY > cursize[1] - dongleImg.get_width() * 2:
-                direction = 'left'
-        elif direction == 'left':
-            dongleX -= randomStep
-            if dongleX < 10:
-                direction = 'up'
-        elif direction == 'up':
-            dongleY -= randomStep
-            if dongleY < 10:
-                direction = 'right'
+                if dongleY > cursize[1] - dongleImg.get_width() * 2:
+                    direction = 'left'
+            elif direction == 'left':
+                dongleX -= randomStep
+                if dongleX < 10:
+                    direction = 'up'
+            elif direction == 'up':
+                dongleY -= randomStep
+                if dongleY < 10:
+                    direction = 'right'
 
-    SCREEN.blit(dongleImg, (dongleX, dongleY))
-    #on screen information like points
-    SCREEN.blit(textSurfaceObj, textRectObj)
+        SCREEN.blit(dongleImg, (dongleX, dongleY))
+        #on screen information like points
+        SCREEN.blit(textSurfaceObj, textRectObj)
 
-    #debug screen
-    SCREEN.blit(debugSurface, debugRect)
+        #debug screen
+        SCREEN.blit(debugSurface, debugRect)
 
-    graphicsPrimitivePressed = 0
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == MOUSEBUTTONDOWN:
-            mouse_pos = list(event.pos)
-            mouse_x, mouse_y = pygame.mouse.get_pos()
+        graphicsPrimitivePressed = 0
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == MOUSEBUTTONDOWN:
+                mouse_pos = list(event.pos)
+                mouse_x, mouse_y = pygame.mouse.get_pos()
 
-            # Test for 'collision'
-            if dongleX - 10 < mouse_x < dongleX + dongleImg.get_width() and dongleY - 10 < mouse_y < dongleY + dongleImg.get_height():
-                pygame.display.set_caption("DONGLE HIT!")
-                thread.start_new_thread(soundObj.play,())
-                soundObj.stop()
-                #hit counter
-                primitivesHit += 1
-                textSurfaceObj = fontObj.render('SCORE: ' + str(primitivesHit), True, RED, BLACK)
+                # Test for 'collision'
+                if dongleX - 10 < mouse_x < dongleX + dongleImg.get_width() and dongleY - 10 < mouse_y < dongleY + dongleImg.get_height():
+                    pygame.display.set_caption("DONGLE HIT!")
+                    thread.start_new_thread(soundObj.play,())
+                    soundObj.stop()
+                    #hit counter
+                    primitivesHit += 1
+                    textSurfaceObj = fontObj.render('SCORE: ' + str(primitivesHit), True, RED, BLACK)
 
-    #debugSurface = debugFont.render('ENTERING', True, BLACK, WHITE)
-    #gore mode
-    if oldScore != primitivesHit or itsAboutTime:
-        if not itsAboutTime:
+        #debugSurface = debugFont.render('ENTERING', True, BLACK, WHITE)
+        #gore mode
+        if oldScore != primitivesHit or itsAboutTime:
+            if not itsAboutTime:
             #debugSurface = debugFont.render('NOT', True, BLACK, WHITE)
             hitMoment = pygame.time.get_ticks()
             itsAboutTime = True
@@ -206,6 +212,6 @@ while True:
         middleOfPrimitive = [dongleImg.get_width()/2 + dongleX, dongleImg.get_height()/2 + dongleY]
         SCREEN.blit(bloodImg, middleOfPrimitive)
 
-
-    pygame.display.update()
-    fpsClock.tick(FPS)
+    def updateScreen():
+        pygame.display.update()
+        fpsClock.tick(FPS)
