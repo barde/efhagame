@@ -18,6 +18,7 @@ class Brain():
         self.link.start()
 
     def updateSlice(self, slice):
+        print "----------------------------"
         print "ZeoTimestamp: " + str(slice['ZeoTimestamp'])
         print "Version: " + str(slice['Version'])
 
