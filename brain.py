@@ -6,6 +6,8 @@
 #Honourable mention: http://zeorawdata.sourceforge.net
 
 from ZeoRawData import BaseLink, Parser
+import pprint
+
 
 class Brain():
     def __init__(self):
@@ -25,7 +27,7 @@ class Brain():
         if not slice['SQI'] == None:
             print "SQI: " + str(slice['SQI'])
         else:
-            print "SQU NOT AVILABLE!"
+            print "SQI NOT AVILABLE!"
 
         if not slice['Impedance'] == None:
             print "Impendance: " +  str(int(slice['Impedance']))
@@ -38,13 +40,15 @@ class Brain():
             print "Good Signal"
 
         if not slice['Waveform'] == []:
-            print "Waveform: " + (slice['Waveform'])
+            pprint.pprint(slice['Waveform'])
 
         if len(slice['FrequencyBins'].values()) == 7:
             f = slice['FrequencyBins']
             bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
-            for freq in emumerate(bins):
-                print "Bin" + freq  + ": " + bins[i]
+            pprint.pprint(f)
+            pprint.pprint(bins)
+            #for freq in emumerate(bins):
+            #    print "Bin" + freq  + ": " + bins[i]
 
     def updateEvent(self, timestamp, timestamp_subsec, version, event):
         print "New Event with timestamp :" + str(timestamp)
