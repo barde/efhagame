@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#2012 Bartholomäus Dedersen
+#2012 Bartholomaeus Dedersen
 #A brain
 #Interface for the ZEO Sleep Thingy to give a 
 #simple object interface for a game controller
@@ -7,13 +7,14 @@
 
 from ZeoRawData import BaseLink, Parser
 
-class brain():
+class Brain():
     def __init__(self):
 #Object variables for initialisation
-        self.link = Baselink('/dev/ttyUSB0')
-        self.parser = Parser()
-        self.link.addCallback(parser.updateEvent)
-        self.parser.addEventCallback(parser.updateSlice)
+        self.link = BaseLink.BaseLink('/dev/ttyUSB0')
+        self.parser = Parser.Parser()
+        self.link.addCallback(self.parser.update)
+        self.parser.addEventCallback(self.updateEvent)
+        self.parser.addSliceCallback(self.updateSlice)
         self.link.start()
 
     def updateSlice(self, slice):
@@ -44,13 +45,14 @@ class brain():
             for freq in emumerate(bins):
                 print "Bin" + freq  + ": " + bins[i]
 
-    def updateEvent(self, timestamp, version, event):
+    def updateEvent(self, timestamp, timestamp_subsec, version, event):
         print "New Event with timestamp :" + str(timestamp)
         print "Version: " + str(version)
         print "Event: " + event
 
 
 if __name__ == '__main__':
+    brain = Brain()
     while True:
-        print "Hi"
+        i =+ 1
     sys.exit(app.exec_())
