@@ -7,11 +7,15 @@
 
 from ZeoRawData import BaseLink, Parser
 import pprint
+import optparse
+
 
 
 class Brain():
-    def __init__(self):
+    def __init__(self,verbose=False,outputFile=False):
 #Object variables for initialisation
+        self.verbose = verbose
+        self.outputFile = outputFile
         self.link = BaseLink.BaseLink('/dev/ttyUSB0')
         self.parser = Parser.Parser()
         self.link.addCallback(self.parser.update)
@@ -19,45 +23,80 @@ class Brain():
         self.parser.addSliceCallback(self.updateSlice)
         self.link.start()
 
+
+
     def updateSlice(self, slice):
-        print "----------------------------"
-        print "ZeoTimestamp: " + str(slice['ZeoTimestamp'])
-        print "Version: " + str(slice['Version'])
+        if self.outputFile:
+            import csv
+            binWriter = csv.writer(open(self.outputFile, 'ab'))
+            if len(slice['FrequencyBins'].values()) == 7:
+                f = slice['FrequencyBins']
+                bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
+                binWriter.writerow(bins)
+        if self.verbose:
+            print "----------------------------"
+            print "ZeoTimestamp: " + str(slice['ZeoTimestamp'])
+            print "Version: " + str(slice['Version'])
 
-        if not slice['SQI'] == None:
-            print "SQI: " + str(slice['SQI'])
-        else:
-            print "SQI NOT AVILABLE!"
+            if not slice['SQI'] == None:
+                print "SQI: " + str(slice['SQI'])
+            else:
+                print "SQI NOT AVILABLE!"
 
-        if not slice['Impedance'] == None:
-            print "Impendance: " +  str(int(slice['Impedance']))
-        else:
-            print "Impendance unknown"
+            if not slice['Impedance'] == None:
+                print "Impendance: " +  str(int(slice['Impedance']))
+            else:
+                print "Impendance unknown"
 
-        if slice['BadSignal']:
-            print "BAD SIGNAL DETECTED"
-        else:
-            print "Good Signal"
+            if slice['BadSignal']:
+                print "BAD SIGNAL DETECTED"
+            else:
+                print "Good Signal"
 
-        #if not slice['Waveform'] == []:
-            #pprint.pprint(slice['Waveform'])
+            if not slice['Waveform'] == []:
+                pprint.pprint(slice['Waveform'])
 
-        if len(slice['FrequencyBins'].values()) == 7:
-            f = slice['FrequencyBins']
-            bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
-            #pprint.pprint(f)
-            pprint.pprint(bins)
-            #for freq in emumerate(bins):
-            #    print "Bin" + freq  + ": " + bins[i]
+            if len(slice['FrequencyBins'].values()) == 7:
+                f = slice['FrequencyBins']
+                bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
+                #pprint.pprint(f)
+                pprint.pprint(bins)
+                #for freq in emumerate(bins):
+                #    print "Bin" + freq  + ": " + bins[i]
 
     def updateEvent(self, timestamp, timestamp_subsec, version, event):
-        print "New Event with timestamp :" + str(timestamp)
-        print "Version: " + str(version)
-        print "Event: " + event
+        if self.verbose:
+            print "New Event with timestamp :" + str(timestamp)
+            print "Version: " + str(version)
+            print "Event: " + event
 
 
 if __name__ == '__main__':
-    brain = Brain()
+
+    #parse command line
+    parser = optparse.OptionParser(
+     usage = "%prog [options]",
+     description = "Brain interface for efhagame",
+     epilog = """ Just a small class to encapsulate the ZEO Raw Data library for proper access to control the protagonist in efhagame.
+            """)
+
+    parser.add_option("-v", "--verbose",
+        dest = "verbose",
+        action = "store_true",
+        help = "be more verbose",
+        default = False)
+
+    parser.add_option("-o", "--output",
+    action="store",
+    type="string",
+    help = "put all output FFT bins to FILE",
+    metavar="FILE",
+    dest="outputFile")
+
+    (options, args) = parser.parse_args()
+
+
+    brain = Brain(options.verbose, options.outputFile)
     while True:
         i =+ 1
     sys.exit(app.exec_())
