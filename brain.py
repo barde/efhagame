@@ -39,13 +39,13 @@ class Brain():
         else:
             print "Good Signal"
 
-        if not slice['Waveform'] == []:
-            pprint.pprint(slice['Waveform'])
+        #if not slice['Waveform'] == []:
+            #pprint.pprint(slice['Waveform'])
 
         if len(slice['FrequencyBins'].values()) == 7:
             f = slice['FrequencyBins']
             bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
-            pprint.pprint(f)
+            #pprint.pprint(f)
             pprint.pprint(bins)
             #for freq in emumerate(bins):
             #    print "Bin" + freq  + ": " + bins[i]
