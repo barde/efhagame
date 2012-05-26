@@ -10,14 +10,21 @@ import pprint
 import optparse
 import csv
 import os.path
+from decimal import *
+
+def DEBUG(msg):
+    if(options.debugMode):
+        print msg
 
 
 
 class Brain():
-    def __init__(self,verbose=False,outputFile=False,simMode=False):
+    def __init__(self,verbose=False,outputFile=False,simMode=False,csvData=False):
 #Object variables for initialisation
         self.verbose = verbose
         self.outputFile = outputFile
+        if csvData:
+            pprint.pprint(self.meanSavedData(csvData))
         if not simMode:
             self.link = BaseLink.BaseLink('/dev/ttyUSB0')
             self.parser = Parser.Parser()
@@ -77,8 +84,35 @@ class Brain():
             return
         with open(csvFile, 'rb') as f:
             reader = csv.reader(f)
+            valuesRead = 0
+            values = [0] * 7
             for row in reader:
-                print row
+                i = 0
+                DEBUG("row value")
+                DEBUG(row)
+                for cell in row:
+                    DEBUG("Last i")
+                    DEBUG(i)
+                    if i == 6:
+                        e6Value = Decimal(cell) * 1000000
+                        values[i] += long(e6Value)
+
+                        DEBUG("new line")
+                        DEBUG("values read: ")
+                        DEBUG(valuesRead)
+                        valuesRead += 1
+                        i = 0
+                    else:
+                        DEBUG("reading")
+                        e6Value = Decimal(cell) * 1000000
+                        values[i] += long(e6Value)
+                        i += 1
+            for p in range(0,6):
+                DEBUG(" values read: ")
+                DEBUG(valuesRead)
+                values[p] /= valuesRead
+            return values
+
 
 if __name__ == '__main__':
 
@@ -101,6 +135,12 @@ if __name__ == '__main__':
         help = "simulation mode - no real device needed on ttyUSB0",
         default = False)
 
+    parser.add_option("-d", "--debug",
+        dest = "debugMode",
+        action = "store_true",
+        help = "view all debug messages",
+        default = False)
+
     parser.add_option("-o", "--output",
     action="store",
     type="string",
@@ -108,10 +148,18 @@ if __name__ == '__main__':
     metavar="FILE",
     dest="outputFile")
 
+    parser.add_option("-r", "--readCSV",
+    action="store",
+    type="string",
+    help = "read CSV data from file with seven values per row",
+    metavar="FILE",
+    dest="csvData")
+
+
     (options, args) = parser.parse_args()
 
 
-    brain = Brain(options.verbose, options.outputFile)
+    brain = Brain(options.verbose, options.outputFile, options.simMode, options.csvData)
     while True:
         i =+ 1
     sys.exit(app.exec_())
