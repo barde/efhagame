@@ -24,7 +24,9 @@ class Brain():
         self.verbose = verbose
         self.outputFile = outputFile
         if csvData:
-            pprint.pprint(self.meanSavedData(csvData))
+            csvData = self.meanSavedData(csvData)
+            pprint.pprint(csvData)
+            self.printGraph(csvData)
         if not simMode:
             self.link = BaseLink.BaseLink('/dev/ttyUSB0')
             self.parser = Parser.Parser()
@@ -94,7 +96,7 @@ class Brain():
                     DEBUG("Last i")
                     DEBUG(i)
                     if i == 6:
-                        e6Value = Decimal(cell) * 1000000
+                        e6Value = Decimal(cell) * 100
                         values[i] += long(e6Value)
 
                         DEBUG("new line")
@@ -104,7 +106,7 @@ class Brain():
                         i = 0
                     else:
                         DEBUG("reading")
-                        e6Value = Decimal(cell) * 1000000
+                        e6Value = Decimal(cell) * 100
                         values[i] += long(e6Value)
                         i += 1
             for p in range(0,6):
@@ -112,6 +114,22 @@ class Brain():
                 DEBUG(valuesRead)
                 values[p] /= valuesRead
             return values
+
+    def printGraph(self, csvData):
+        from pylab import *
+        # make a square figure and axes
+        figure(1, figsize=(8,8))
+        ax = axes([0.1, 0.1, 0.8, 0.8])
+
+        labels = '$Delta$', '$Theta$', '$Alpha$', '$Beta_1$', '$Beta_2$', '$Beta_3$'
+
+        explode=(0, 0, 0, 0, 0, 0)
+        del csvData[-1]
+        pie(csvData, explode=explode, labels=labels, autopct='%1.1f%%', shadow=True)
+        title('', bbox={'facecolor':'0.8', 'pad':5})
+
+        show()
+
 
 
 if __name__ == '__main__':
@@ -160,6 +178,6 @@ if __name__ == '__main__':
 
 
     brain = Brain(options.verbose, options.outputFile, options.simMode, options.csvData)
-    while True:
-        i =+ 1
-    sys.exit(app.exec_())
+    if not options.simMode:
+        while True:
+            i =+ 1
