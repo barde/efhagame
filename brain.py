@@ -8,26 +8,28 @@
 from ZeoRawData import BaseLink, Parser
 import pprint
 import optparse
+import csv
+import os.path
 
 
 
 class Brain():
-    def __init__(self,verbose=False,outputFile=False):
+    def __init__(self,verbose=False,outputFile=False,simMode=False):
 #Object variables for initialisation
         self.verbose = verbose
         self.outputFile = outputFile
-        self.link = BaseLink.BaseLink('/dev/ttyUSB0')
-        self.parser = Parser.Parser()
-        self.link.addCallback(self.parser.update)
-        self.parser.addEventCallback(self.updateEvent)
-        self.parser.addSliceCallback(self.updateSlice)
-        self.link.start()
+        if not simMode:
+            self.link = BaseLink.BaseLink('/dev/ttyUSB0')
+            self.parser = Parser.Parser()
+            self.link.addCallback(self.parser.update)
+            self.parser.addEventCallback(self.updateEvent)
+            self.parser.addSliceCallback(self.updateSlice)
+            self.link.start()
 
 
 
     def updateSlice(self, slice):
         if self.outputFile:
-            import csv
             binWriter = csv.writer(open(self.outputFile, 'ab'))
             if len(slice['FrequencyBins'].values()) == 7:
                 f = slice['FrequencyBins']
@@ -40,8 +42,7 @@ class Brain():
 
             if not slice['SQI'] == None:
                 print "SQI: " + str(slice['SQI'])
-            else:
-                print "SQI NOT AVILABLE!"
+            else: print "SQI NOT AVILABLE!"
 
             if not slice['Impedance'] == None:
                 print "Impendance: " +  str(int(slice['Impedance']))
@@ -70,6 +71,14 @@ class Brain():
             print "Version: " + str(version)
             print "Event: " + event
 
+    def meanSavedData(self, csvFile):
+        if not os.path.exists(csvFile):
+            print "File for CSV parsing does not exist!"
+            return
+        with open(csvFile, 'rb') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                print row
 
 if __name__ == '__main__':
 
@@ -84,6 +93,12 @@ if __name__ == '__main__':
         dest = "verbose",
         action = "store_true",
         help = "be more verbose",
+        default = False)
+
+    parser.add_option("-s", "--sim",
+        dest = "simMode",
+        action = "store_true",
+        help = "simulation mode - no real device needed on ttyUSB0",
         default = False)
 
     parser.add_option("-o", "--output",
