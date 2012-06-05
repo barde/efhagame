@@ -27,7 +27,23 @@ class AI():
                 print "File for CSV parsing does not exist!"
                 return
             savedData = self.readCSVData(self.inputFile)
-            
+
+
+        self.neuralNet = FeedForwardNetwork()
+        inLayer = LinearLayer(7)
+        hiddenLayer = SigmoidLayer(5)
+        outLayer = LinearLayer(1)
+
+        neuralNet.addInputModule(inLayer)
+        neuralNet.addModule(hiddenLayer)
+        neuralNet.addOutputModule(outLayer)
+
+        neuralNet.addConnection(FullConnection(inLayer,hiddenLayer))
+        neuralNet.addConnection(FullConnection(hiddenLayer,outLayer))
+
+        neuralNet.sortModule()
+
+        DEBUG(pprint(neuralNet))
 
 
     def readCSVData(self,inputFile):
