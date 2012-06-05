@@ -90,15 +90,10 @@ class Brain():
             values = [0] * 7
             for row in reader:
                 i = 0
-                DEBUG("row value")
-                DEBUG(row)
                 for cell in row:
-                    DEBUG("Last i")
-                    DEBUG(i)
                     if i == 6:
                         e6Value = Decimal(cell) * 100
                         values[i] += long(e6Value)
-
                         DEBUG("new line")
                         DEBUG("values read: ")
                         DEBUG(valuesRead)
