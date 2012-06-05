@@ -22,11 +22,6 @@ class AI():
     #Object variables for initialisation
         self.inputFile = inputFile
 
-        if self.inputFile:
-            if not os.path.exists(inputFile):
-                print "File for CSV parsing does not exist!"
-                return
-            savedData = self.readCSVData(self.inputFile)
 
 
         self.neuralNet = FeedForwardNetwork()
@@ -34,16 +29,27 @@ class AI():
         hiddenLayer = SigmoidLayer(5)
         outLayer = LinearLayer(1)
 
-        neuralNet.addInputModule(inLayer)
-        neuralNet.addModule(hiddenLayer)
-        neuralNet.addOutputModule(outLayer)
+        self.neuralNet.addInputModule(inLayer)
+        self.neuralNet.addModule(hiddenLayer)
+        self.neuralNet.addOutputModule(outLayer)
 
-        neuralNet.addConnection(FullConnection(inLayer,hiddenLayer))
-        neuralNet.addConnection(FullConnection(hiddenLayer,outLayer))
+        self.neuralNet.addConnection(FullConnection(inLayer,hiddenLayer))
+        self.neuralNet.addConnection(FullConnection(hiddenLayer,outLayer))
 
-        neuralNet.sortModule()
+        self.neuralNet.sortModules()
 
-        DEBUG(pprint(neuralNet))
+        DEBUG("Neural Network:")
+        DEBUG(self.neuralNet)
+        DEBUG("--------")
+
+        if self.inputFile:
+            if not os.path.exists(inputFile):
+                print "File for CSV parsing does not exist!"
+                return
+            savedData = self.readCSVData(self.inputFile)
+            self.neuralNet.activate(savedData[0])
+            #for line in savedData:
+            #    self.neuralNet.activate(line)
 
 
     def readCSVData(self,inputFile):
