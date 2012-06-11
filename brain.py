@@ -107,6 +107,7 @@ class Brain():
             for p in range(0,6):
                 DEBUG(" values read: ")
                 DEBUG(valuesRead)
+#get mean of all values
                 values[p] /= valuesRead
             return values
 

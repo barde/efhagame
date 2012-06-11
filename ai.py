@@ -18,9 +18,10 @@ def DEBUG(msg):
         print msg
 
 class AI():
-    def __init__(self,inputFile=False):
+    def __init__(self,inputFile=False,trainMode=False):
     #Object variables for initialisation
         self.inputFile = inputFile
+        self.trainMode = trainMode
 
 
 
@@ -47,9 +48,42 @@ class AI():
                 print "File for CSV parsing does not exist!"
                 return
             savedData = self.readCSVData(self.inputFile)
-            self.neuralNet.activate(savedData[0])
-            #for line in savedData:
-            #    self.neuralNet.activate(line)
+#train upon the given data
+            if self.trainMode:
+                ds = trainNetwork(savedData)
+                for inpt,target in ds:
+                    DEBUG("Input:")
+                    DEBUG(inpt)
+                    DEBUG("Target")
+                    DEBUG(target)
+#read the saved data and use it in the network
+            for line in savedData:
+                DEBUG("Used Data: ")
+                DEBUG(line)
+                result = self.neuralNet.activate(line)
+                DEBUG(result)
+            DEBUG("Final weigths:")
+            DEBUG(self.neuralNet.params)
+
+    def trainNetwork(self,savedData):
+#init a dataset with seven input and one output value
+        ds = SupervisedDataSet(7,1)
+        lastValues =  [None] * 7
+        correctionFactor = 0
+        for line in savedData
+            if not lastValues[0] == None:
+#intelligent changing value for training a neural network
+                    correctionFactor += (line[0] - lastValue[0]) * 3
+                    correctionFactor += (line[1] - lastValue[1]) * 2
+                    correctionFactor += (line[2] - lastValue[2])
+                    correctionFactor += (lastValue[3] - line[3])
+                    correctionFactor += (lastValue[4] - line[4]) * 2
+                    correctionFactor += (lastValue[5] - line[5]) * 3
+#copy values of current line for comparision
+            lastValue = list(line)
+            ds.addSample(line,correctionFactor)
+        return ds
+
 
 
     def readCSVData(self,inputFile):
@@ -92,6 +126,12 @@ if __name__ == '__main__':
         help = "show debug messages",
         default = False)
 
+    parser.add_option("-t", "--train",
+        dest = "trainMode",
+        action = "store_true",
+        help = "train the network",
+        default = False)
+
     parser.add_option("-i", "--input",
     action="store",
     type="string",
@@ -100,4 +140,4 @@ if __name__ == '__main__':
     dest="inputFile")
 
     (options, args) = parser.parse_args()
-    ai = AI(options.inputFile)
+    ai = AI(options.inputFile,options.trainMode)
