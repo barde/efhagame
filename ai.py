@@ -6,6 +6,7 @@
 #training from expected outputs
 
 from pybrain import *
+from pybrain.datasets import SupervisedDataSet
 import os.path
 import optparse
 import csv
@@ -50,11 +51,11 @@ class AI():
             savedData = self.readCSVData(self.inputFile)
 #train upon the given data
             if self.trainMode:
-                ds = trainNetwork(savedData)
+                ds = self.trainNetwork(savedData)
                 for inpt,target in ds:
-                    DEBUG("Input:")
+                    DEBUG("Input Values from training:")
                     DEBUG(inpt)
-                    DEBUG("Target")
+                    DEBUG("Correction factor from training:")
                     DEBUG(target)
 #read the saved data and use it in the network
             for line in savedData:
@@ -68,21 +69,35 @@ class AI():
     def trainNetwork(self,savedData):
 #init a dataset with seven input and one output value
         ds = SupervisedDataSet(7,1)
-        lastValues =  [None] * 7
+        meanValue = self.getMeanValue(savedData)
         correctionFactor = 0
-        for line in savedData
-            if not lastValues[0] == None:
+        for line in savedData:
 #intelligent changing value for training a neural network
-                    correctionFactor += (line[0] - lastValue[0]) * 3
-                    correctionFactor += (line[1] - lastValue[1]) * 2
-                    correctionFactor += (line[2] - lastValue[2])
-                    correctionFactor += (lastValue[3] - line[3])
-                    correctionFactor += (lastValue[4] - line[4]) * 2
-                    correctionFactor += (lastValue[5] - line[5]) * 3
+            correctionFactor += (line[0] - meanValue[0]) * 3
+            correctionFactor += (line[1] - meanValue[1]) * 2
+            correctionFactor += (line[2] - meanValue[2])
+            correctionFactor += (meanValue[3] - line[3])
+            correctionFactor += (meanValue[4] - line[4]) * 2
+            correctionFactor += (meanValue[5] - line[5]) * 3
+            DEBUG("Correction Factor:")
+            DEBUG(correctionFactor)
 #copy values of current line for comparision
-            lastValue = list(line)
-            ds.addSample(line,correctionFactor)
+        ds.addSample(line,correctionFactor)
         return ds
+
+    def getMeanValue(self,savedData):
+        meanValues = [0] * 7
+        lines = 0
+        for line in savedData:
+            lines += 1
+            valuePosition = 0
+            for value in line:
+                meanValues[valuePosition] += value
+                valuePosition += 1
+        for i in range(7):
+            meanValues[i] /= lines
+        return meanValues
+
 
 
 
