@@ -79,10 +79,12 @@ class AI():
             correctionFactor += (meanValue[3] - line[3])
             correctionFactor += (meanValue[4] - line[4]) * 2
             correctionFactor += (meanValue[5] - line[5]) * 3
+            correctionFactor += (meanValue[6] - line[6]) * 6
             DEBUG("Correction Factor:")
             DEBUG(correctionFactor)
 #copy values of current line for comparision
-        ds.addSample(line,correctionFactor)
+            ds.addSample(line,correctionFactor)
+            correctionFactor = 0
         return ds
 
     def getMeanValue(self,savedData):
@@ -98,6 +100,15 @@ class AI():
             meanValues[i] /= lines
         return meanValues
 
+    def printGraph(self, csvData):
+        from pylab import plot, show, ylim, yticks
+
+        t = arange(0.0, 2.0, 0.01)
+        plot(t, s1, t, s2+1, t, s3+2, t, s4+3, color='k')
+        ylim(-1,4)
+        yticks(arange(4), ['S1', 'S2', 'S3', 'S4'])
+
+        show()
 
 
 
