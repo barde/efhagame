@@ -11,7 +11,6 @@ import os.path
 import optparse
 import csv
 import numpy
-import pprint
 from decimal import *
 
 def DEBUG(msg):
@@ -49,6 +48,7 @@ class AI():
                 print "File for CSV parsing does not exist!"
                 return
             savedData = self.readCSVData(self.inputFile)
+
 #train upon the given data
             if self.trainMode:
                 ds = self.trainNetwork(savedData)
@@ -57,6 +57,8 @@ class AI():
                     DEBUG(inpt)
                     DEBUG("Correction factor from training:")
                     DEBUG(target)
+                self.printGraph(ds)
+
 #read the saved data and use it in the network
             for line in savedData:
                 DEBUG("Used Data: ")
@@ -100,13 +102,24 @@ class AI():
             meanValues[i] /= lines
         return meanValues
 
-    def printGraph(self, csvData):
-        from pylab import plot, show, ylim, yticks
+    def printGraph(self, dataSet):
+        from pylab import *
+        import numpy
 
-        t = arange(0.0, 2.0, 0.01)
-        plot(t, s1, t, s2+1, t, s3+2, t, s4+3, color='k')
-        ylim(-1,4)
-        yticks(arange(4), ['S1', 'S2', 'S3', 'S4'])
+        i = numpy.arange(0, len(dataSet['target']), 1)
+        wavePercentage = dataSet['input'][i]
+        correctionFactor = dataSet['target'][i]
+
+        ax = plt.subplot(111)
+
+        plot(i, wavePercentage)
+        plot(i, correctionFactor + 0.15, c=cm.summer(0), linewidth=2)
+        xlabel(r"Number of Data Samples", fontsize=20) 
+
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        ax.legend(('$Delta$ ', '$Theta$', '$Alpha$', '$Beta_1$', '$Beta_2$', '$Beta_3$', '$Gamma$', '$Target$'),loc='center left', bbox_to_anchor=(1, 0.5), fancybox=True, shadow=True)
+
 
         show()
 
@@ -131,10 +144,6 @@ class AI():
                             values[j][i] = Decimal(cell)
                             i += 1
                     j += 1
-
-            DEBUG(pprint.pprint(values))
-
-
             return values
 
 
