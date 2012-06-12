@@ -6,12 +6,14 @@
 #training from expected outputs
 
 from pybrain import *
+from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.datasets import SupervisedDataSet
 import os.path
 import optparse
 import csv
-import numpy
 from decimal import *
+from pylab import *
+import numpy
 
 def DEBUG(msg):
     if(options.debugMode):
@@ -51,12 +53,14 @@ class AI():
 
 #train upon the given data
             if self.trainMode:
-                ds = self.trainNetwork(savedData)
+                ds = self.makeTrainingSet(savedData)
                 for inpt,target in ds:
                     DEBUG("Input Values from training:")
                     DEBUG(inpt)
                     DEBUG("Correction factor from training:")
                     DEBUG(target)
+                trainer = BackpropTrainer(self.neuralNet,ds,verbose=True)
+                trainer.trainUntilConvergence(maxEpochs=10)
                 self.printGraph(ds)
 
 #read the saved data and use it in the network
@@ -68,7 +72,7 @@ class AI():
             DEBUG("Final weigths:")
             DEBUG(self.neuralNet.params)
 
-    def trainNetwork(self,savedData):
+    def makeTrainingSet(self,savedData):
 #init a dataset with seven input and one output value
         ds = SupervisedDataSet(7,1)
         meanValue = self.getMeanValue(savedData)
@@ -103,8 +107,6 @@ class AI():
         return meanValues
 
     def printGraph(self, dataSet):
-        from pylab import *
-        import numpy
 
         i = numpy.arange(0, len(dataSet['target']), 1)
         wavePercentage = dataSet['input'][i]
@@ -112,8 +114,8 @@ class AI():
 
         ax = plt.subplot(111)
 
-        plot(i, wavePercentage)
-        plot(i, correctionFactor + 0.15, c=cm.summer(0), linewidth=2)
+        plt.plot(i, wavePercentage)
+        plt.plot(i, correctionFactor + 0.15, c=cm.summer(0), linewidth=2)
         xlabel(r"Number of Data Samples", fontsize=20) 
 
         box = ax.get_position()
