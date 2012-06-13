@@ -20,10 +20,11 @@ def DEBUG(msg):
         print msg
 
 class AI():
-    def __init__(self,inputFile=False,trainMode=False):
+    def __init__(self,inputFile=False,trainMode=False,realtimeMode=False):
     #Object variables for initialisation
         self.inputFile = inputFile
         self.trainMode = trainMode
+        self.realtimeMode = realtimeMode
 
 
 
@@ -71,6 +72,15 @@ class AI():
                 DEBUG(result)
             DEBUG("Final weigths:")
             DEBUG(self.neuralNet.params)
+
+        if self.realtimeMode:
+#init the brain interface
+
+#makeTrainingSet(oneData);
+
+#paint it in realtime
+#http://www.scipy.org/Cookbook/Matplotlib/Animations
+
 
     def makeTrainingSet(self,savedData):
 #init a dataset with seven input and one output value
@@ -169,6 +179,12 @@ if __name__ == '__main__':
         help = "train the network",
         default = False)
 
+    parser.add_option("-r", "--realtime",
+        dest = "realtimeMode",
+        action = "store_true",
+        help = "draws realtime outputs from brain wave measurment interface",
+        default = False)
+
     parser.add_option("-i", "--input",
     action="store",
     type="string",
@@ -177,4 +193,4 @@ if __name__ == '__main__':
     dest="inputFile")
 
     (options, args) = parser.parse_args()
-    ai = AI(options.inputFile,options.trainMode)
+    ai = AI(options.inputFile,options.trainMode,options.realtimeMode)
