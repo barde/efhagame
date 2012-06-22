@@ -151,13 +151,6 @@ if __name__ == '__main__':
         help = "be more verbose",
         default = False)
 
-    parser.add_option("-d", "--debug",
-        dest = "debug",
-        action = "store_true",
-        help = "show debugging output",
-        default = False)
-
-
     parser.add_option("-s", "--sim",
         dest = "simMode",
         action = "store_true",
@@ -165,7 +158,7 @@ if __name__ == '__main__':
         default = False)
 
     parser.add_option("-d", "--debug",
-        dest = "debugMode",
+        dest = "debug",
         action = "store_true",
         help = "view all debug messages",
         default = False)
