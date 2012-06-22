@@ -19,10 +19,11 @@ def DEBUG(msg):
 
 
 class Brain():
-    def __init__(self,verbose=False,outputFile=False,simMode=False,csvData=False):
+    def __init__(self,verbose=False,outputFile=False,simMode=False,csvData=False,debug=False):
 #Object variables for initialisation
         self.verbose = verbose
         self.outputFile = outputFile
+        self.debug = debug
         if csvData:
             csvData = self.meanSavedData(csvData)
             pprint.pprint(csvData)
@@ -37,6 +38,7 @@ class Brain():
 
 
 
+#slices arrive every second and carry all important data, mostly
     def updateSlice(self, slice):
         if self.outputFile:
             binWriter = csv.writer(open(self.outputFile, 'ab'))
@@ -44,7 +46,9 @@ class Brain():
                 f = slice['FrequencyBins']
                 bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
                 binWriter.writerow(bins)
-        if self.verbose:
+
+#debugging params normally not needed but for bugfixing
+        if self.debug:
             print "----------------------------"
             print "ZeoTimestamp: " + str(slice['ZeoTimestamp'])
             print "Version: " + str(slice['Version'])
@@ -66,20 +70,23 @@ class Brain():
             if not slice['Waveform'] == []:
                 pprint.pprint(slice['Waveform'])
 
+#print out the fractions of waves
+        if self.verbose:
             if len(slice['FrequencyBins'].values()) == 7:
                 f = slice['FrequencyBins']
                 bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
-                #pprint.pprint(f)
-                pprint.pprint(bins)
-                #for freq in emumerate(bins):
-                #    print "Bin" + freq  + ": " + bins[i]
+                for bin in bins:
+                    print bin,
+                print ""
 
+#timestamps carry important data, seldomly
     def updateEvent(self, timestamp, timestamp_subsec, version, event):
-        if self.verbose:
+        if self.debug:
             print "New Event with timestamp :" + str(timestamp)
             print "Version: " + str(version)
             print "Event: " + event
 
+#get the mean of a whole dataset
     def meanSavedData(self, csvFile):
         if not os.path.exists(csvFile):
             print "File for CSV parsing does not exist!"
@@ -111,6 +118,7 @@ class Brain():
                 values[p] /= valuesRead
             return values
 
+#some graphical magic to visualize data
     def printGraph(self, csvData):
         from pylab import *
         # make a square figure and axes
@@ -143,6 +151,13 @@ if __name__ == '__main__':
         help = "be more verbose",
         default = False)
 
+    parser.add_option("-d", "--debug",
+        dest = "debug",
+        action = "store_true",
+        help = "show debugging output",
+        default = False)
+
+
     parser.add_option("-s", "--sim",
         dest = "simMode",
         action = "store_true",
@@ -158,7 +173,7 @@ if __name__ == '__main__':
     parser.add_option("-o", "--output",
     action="store",
     type="string",
-    help = "put all output FFT bins to FILE",
+    help = "put all output bins to FILE",
     metavar="FILE",
     dest="outputFile")
 
@@ -173,7 +188,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
 
-    brain = Brain(options.verbose, options.outputFile, options.simMode, options.csvData)
+    brain = Brain(options.verbose, options.outputFile, options.simMode, options.csvData, options.debug)
     if not options.simMode:
         while True:
             i =+ 1
