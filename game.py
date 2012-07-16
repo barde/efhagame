@@ -1,217 +1,243 @@
-#!/usr/bin/python
-#2012 Bartholomaeus Dedersen
-#A game
-#Honourable mention: Designer of Tannenberg Font
-#                    PyGame crew
+###################################################################################
+###################################################################################
+# efhagame -  by Bartholomaeus Dedersen
+# based on:
+# Sprite Movement Towards Target Example + Physics
+# programed/documented by Mad Cloud Games
+# contact Mad Cloud Games @ madcloudgames@gmail.com with any comments, questions, or changes
+#
+# This project is released under the GNU General Public License V3
+# This code is open source
+# We would love to know what it gets used for
+###################################################################################
+###################################################################################
 
-import time, random
-import pygame, sys
-import thread, sqlite3
+import pygame, math
 from pygame.locals import *
-
-#most important:
-randomStep = 0
-random2Bit = 0
-
-def devote_offerings_to_rng():
-    global randomStep, random2Bit
-    randomStep = random.randint(0,5) + 5
-    random2Bit = random.getrandbits(2)
-
-devote_offerings_to_rng()
-
-######
-#Init all stuff
-# set up the colors
-BLACK = (  0,   0,   0)
-WHITE = (255, 255, 255)
-RED   = (255,   0,   0)
-GREEN = (  0, 255,   0)
-BLUE  = (  0,   0, 255)
-
-#Savegames!
-db = sqlite3.connect("saves.db")
-c = db.cursor()
-sql = 'create table if not exists efhagame (name str, score integer)'
-c.execute(sql)
-db.commit()
-
-#How it all starts
 pygame.init()
 
-#desired framrate
-FPS = 70
-fpsClock = pygame.time.Clock()
+screenwidth = 800
+screenheight = 600
 
-#Music comes into play
-soundObj = pygame.mixer.Sound('wscream.ogg')
-backgroundSong = pygame.mixer.Sound('bckground.ogg')
-thread.start_new_thread(backgroundSong.play,())
+class Vector():
+    '''
+        Class:
+            creates operations to handle vectors such
+            as direction, position, and speed
+        '''
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
+    def __str__(self): # used for printing vectors
+        return "(%s, %s)"%(self.x, self.y)
 
-#drawing size
-resolution = [1280, 800]
-background = pygame.image.load('irc.png')
-SCREEN = pygame.display.set_mode(resolution, pygame.FULLSCREEN)
-#background = background.convert_alpha()
-
-#the desired graphics primitive gets alpha channeled if png with per pixel transparency
-dongleImg = pygame.image.load('dongle.png').convert_alpha()
-bloodImg = pygame.image.load('blood.png').convert_alpha()
-#put it somewhere on the screen
-dongleX = random.randint(0,resolution[0] - dongleImg.get_width() * 2)
-dongleY = random.randint(0,resolution[1] - dongleImg.get_height() * 2)
-#and let it go in some direction
-directions = ['right', 'left', 'up', 'down']
-direction = directions[random2Bit]
-
-start_rect = dongleImg.get_rect()
-image_rect = start_rect
-
-#init data for the info screen
-fontObj = pygame.font.Font('ts.ttf', 42)
-textSurfaceObj = fontObj.render('GLOCK THE DONGLE!', True, RED, BLACK)
-textRectObj = textSurfaceObj.get_rect()
-textRectObj.center = (400, 250)
-
-#init data for debugging
-debugFont = pygame.font.Font(None, 42)
-debugSurface = debugFont.render('DEBUG MODE ENABLED!', True, BLACK, WHITE)
-debugRect = debugSurface.get_rect()
-debugRect.center = (400, 650)
-
-#init data for debugging
-hiScoreFont = pygame.font.Font(None, 66)
-hiScoreSurface = hiScoreFont.render('THE BEST OF THE BEST:', True, BLACK, WHITE)
-hiScoreRect = hiScoreSurface.get_rect()
-hiScoreRect.center = (resolution[0] / 2, 100)
-
-
-cursize = [background.get_width(), background.get_height()]
-
-
-#pygame.draw.polygon(SCREEN, GREEN, ((146, 0), (291, 106), (236, 277), (56, 277), (0, 106)))
-
-    def showStartScreen():
-        print 1
-
-    def showHighScore():
-        #save state
-        stats = [ os.getusername(), oldScore ] 
-        c.execute("INSERT INTO efhagame VALUES (?,?)", stats)
-        db.commit()
-        #show highscore
-        SCREEN.fill(BLACK)
-        hiScoreSurface = hiScoreFont.render('THE BEST OF THE BEST:', True, BLACK, WHITE)
-        #c.execute("select x from efhagame order by score")
-        #hiScoreList = c.fetchall()
-        #winnerlist = ''
-        #for name in hiScoreList:
-        #    winnerlist += #KAMILHILF!
-
-        SCREEN.blit(hiScoreSurface, hiScoreRect)
-        pygame.display.update()
-        sleep(3)
-        raise SystemExit
-
-    def playGame():
-        #starting point value
-        primitivesHit = 0
-        itsAboutTime = False
-
-        oldScore = primitivesHit
-
-        pygame.display.set_caption(direction + " dongleX: " + str(dongleX) + " dongleY: " + str(dongleY))
-
-        ircimage = pygame.transform.smoothscale(background, cursize)
-        imgpos = ircimage.get_rect(centerx=640, centery=400)
-        SCREEN.fill(BLACK)
-        SCREEN.blit(ircimage,imgpos) 
-
-        event = pygame.event.poll()
-        keyinput = pygame.key.get_pressed()
-
-        # exit on corner 'x' click or escape key press
-        if keyinput[pygame.K_ESCAPE]:
-            showHighScore()
-
-        devote_offerings_to_rng()
-        #either move erratically
-        if random2Bit == 1:
-            devote_offerings_to_rng()
-            if random2Bit == 0 :
-                devote_offerings_to_rng()
-                if random2Bit ==  0:
-                    dongleX += randomStep
-                elif random2Bit == 1:
-                    dongleY -= randomStep
-                elif random2Bit == 2:
-                    dongleX -= randomStep
-                elif random2Bit == 3:
-                    dongleY += randomStep
-            if random2Bit == 0:
-                devote_offerings_to_rng()
-                direction = directions[random2Bit]
-        #else move in a circle around the screen
+    def __getitem__(self, key):
+        if key == 0:
+            return self.x
+        elif key == 1:
+            return self.y
         else:
-            if direction == 'right':
-                dongleX += randomStep
-                if dongleX > cursize[0] - dongleImg.get_height() * 2 :
-                    pygame.display.set_caption("OMGOMGOMG")
-                    direction = 'down'
-            elif direction == 'down':
-                dongleY += randomStep
-                if dongleY > cursize[1] - dongleImg.get_width() * 2:
-                    direction = 'left'
-            elif direction == 'left':
-                dongleX -= randomStep
-                if dongleX < 10:
-                    direction = 'up'
-            elif direction == 'up':
-                dongleY -= randomStep
-                if dongleY < 10:
-                    direction = 'right'
+            raise IndexError("This "+str(key)+" key is not a vector key!")
 
-        SCREEN.blit(dongleImg, (dongleX, dongleY))
-        #on screen information like points
-        SCREEN.blit(textSurfaceObj, textRectObj)
+    def __sub__(self, o): # subtraction
+        return Vector(self.x - o.x, self.y - o.y)
 
-        #debug screen
-        SCREEN.blit(debugSurface, debugRect)
+    def length(self): # get length (used for normalize)
+        return math.sqrt((self.x**2 + self.y**2)) 
 
-        graphicsPrimitivePressed = 0
+    def normalize(self): # divides a vector by its length
+        l = self.length()
+        if l != 0:
+            return (self.x / l, self.y / l)
+        return None
+
+
+
+class Sprite(pygame.sprite.Sprite):
+    
+    def __init__(self):
+        '''
+        Class:
+            creates a sprite
+        Parameters:
+            - self
+        '''
+        self.image = pygame.image.load("zombie.png").convert_alpha() # load image
+        self.rect = self.image.get_rect()
+
+        self.reset_position()
+        self.speed = 3 # movement speed of the sprite
+
+        self.normal_friction = .95 # friction while accelerating
+        self.slowing_friction = .8 # friction while slowing down
+
+        self.target = None # starts off with no target
+
+    def reset_position(self):
+        self.trueX = screenwidth / 2 # created because self.rect.center does not hold
+        self.trueY = screenheight - 50# decimal values but these do
+        self.rect.center = (self.trueX, self.trueY) # set starting position
+        self.speedX = 0 # speed in x direction
+        self.speedY = 0 # speed in y direction
+        self.target = None
+
+    def get_direction(self, target):
+        '''
+        Function:
+            takes total distance from sprite.center
+            to the sprites target
+            (gets direction to move)
+        Returns:
+            a normalized vector
+        Parameters:
+            - self
+            - target
+                x,y coordinates of the sprites target
+                can be any x,y coorinate pair in
+                brackets [x,y]
+                or parentheses (x,y)
+        '''
+        if self.target: # if the square has a target
+            position = Vector(self.rect.centerx, self.rect.centery) # create a vector from center x,y value
+            target = Vector(target[0], target[1]) # and one from the target x,y
+            self.dist = target - position # get total distance between target and position
+
+            direction = self.dist.normalize() # normalize so its constant in all directions
+            return direction
+        
+    def distance_check(self, dist):
+        '''
+        Function:
+            tests if the total distance from the
+            sprite to the target is smaller than the
+            ammount of distance that would be normal
+            for the sprite to travel
+            (this lets the sprite know if it needs
+            to slow down. we want it to slow
+            down before it gets to it's target)
+        Returns:
+            bool
+        Parameters:
+            - self
+            - dist
+                this is the total distance from the
+                sprite to the target
+                can be any x,y value pair in
+                brackets [x,y]
+                or parentheses (x,y)
+        '''
+        dist_x = dist[0] ** 2 # gets absolute value of the x distance
+        dist_y = dist[1] ** 2 # gets absolute value of the y distance
+        t_dist = dist_x + dist_y # gets total absolute value distance
+        speed = self.speed ** 2 # gets aboslute value of the speed
+
+        if t_dist < (speed): # read function description above
+            return True
+        
+
+    def update(self):
+        '''
+        Function:
+            gets direction to move then applies
+            the distance to the sprite.center
+            ()
+        Parameters:
+            - self
+        '''
+        
+        self.dir = self.get_direction(self.target) # get direction
+        if self.dir: # if there is a direction to move
+            
+            if self.distance_check(self.dist): # if we need to slow down
+                self.speedX += (self.dir[0] * (self.speed / 2)) # reduced speed
+                self.speedY += (self.dir[1] * (self.speed / 2))
+                self.speedX *= self.slowing_friction # increased friction
+                self.speedY *= self.slowing_friction
+                
+            else: # if we need to go normal speed
+                self.speedX += (self.dir[0] * self.speed) # calculate speed from direction to move and speed constant
+                self.speedY += (self.dir[1] * self.speed)
+                self.speedX *= self.normal_friction # apply friction
+                self.speedY *= self.normal_friction
+
+            self.trueX += self.speedX # store true x decimal values
+            self.trueY += self.speedY
+            self.rect.center = (round(self.trueX),round(self.trueY)) # apply values to sprite.center
+                
+class MovementDesignator():
+    def __init__(self,screen):
+        self.screen = screen # get the screen as main surface
+        self.percent = 100 # scaled from 1-100: max value is real 246 pixel
+
+    def update(self):
+        pygame.draw.rect(self.screen,[0,255,0],[20,20,204,30],2)
+        if self.percent:
+            self.realValue = 2 * self.percent
+            pygame.draw.line(self.screen, (255,0,0),(22,35),(self.realValue + 22,35), 27) # surface, color of lines, uhh, points of lines, width of lines)
+
+    def get_graph_value(self):
+        return self.percent
+
+    def increase_graph(self):
+        if self.percent < 100:
+            self.percent += 10
+
+    def decrease_graph(self):
+        if self.percent > 0:
+            self.percent -= 10
+
+
+
+def main():
+
+    screen = pygame.display.set_mode((screenwidth,screenheight))
+    pygame.display.set_caption("efhagame - Hit all Brains")
+    background_color = pygame.Surface(screen.get_size()).convert()
+    background_color.fill((0,0,0))
+
+    line_points = [] # make a list for points
+    line_color = (0, 255, 255) # color of the lines
+
+    sprite = Sprite() # create the sprite
+
+    designator = MovementDesignator(screen)
+
+    clock = pygame.time.Clock()
+    running = True
+
+    while running:
+        clock.tick(30)
+
         for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == MOUSEBUTTONDOWN:
-                mouse_pos = list(event.pos)
-                mouse_x, mouse_y = pygame.mouse.get_pos()
+            if event.type == pygame.QUIT:
+                running = False
+                
+            if event.type == MOUSEBUTTONDOWN:
+                sprite.target = event.pos # set the sprite.target to the mouse click position
+                line_points.append(event.pos) # add that point to the line list
+            if event.type == KEYDOWN:
+                if event.key == K_SPACE:
+                    sprite.reset_position()
+                    line_points.append([screenwidth / 2, screenheight - 50])
+                if event.key == K_UP:
+                    designator.increase_graph()
+                if event.key == K_DOWN:
+                    designator.decrease_graph()
+                
+        screen.blit(background_color, (0,0))
+        
+        
+        designator.update()
 
-                # Test for 'collision'
-                if dongleX - 10 < mouse_x < dongleX + dongleImg.get_width() and dongleY - 10 < mouse_y < dongleY + dongleImg.get_height():
-                    pygame.display.set_caption("DONGLE HIT!")
-                    thread.start_new_thread(soundObj.play,())
-                    soundObj.stop()
-                    #hit counter
-                    primitivesHit += 1
-                    textSurfaceObj = fontObj.render('SCORE: ' + str(primitivesHit), True, RED, BLACK)
+        sprite.update() # update the sprite
+        screen.blit(sprite.image, sprite.rect.topleft) # blit the sprite to the screen
+        
+        if len(line_points) > 1: # if there are enough points to draw a line
+            pygame.draw.lines(screen, line_color, False, line_points, 2) # surface, color of lines, uhh, points of lines, width of lines)
 
-        #debugSurface = debugFont.render('ENTERING', True, BLACK, WHITE)
-        #gore mode
-        if oldScore != primitivesHit or itsAboutTime:
-            if not itsAboutTime:
-            #debugSurface = debugFont.render('NOT', True, BLACK, WHITE)
-            hitMoment = pygame.time.get_ticks()
-            itsAboutTime = True
-        elif itsAboutTime:
-            #debugSurface = debugFont.render('TIME', True, BLACK, WHITE)
-            #its about time when one multiplicated by 1000 milliseconds passed
-            if pygame.time.get_ticks() - hitMoment > 3 * 1000:
-                itsAboutTime = False
-        middleOfPrimitive = [dongleImg.get_width()/2 + dongleX, dongleImg.get_height()/2 + dongleY]
-        SCREEN.blit(bloodImg, middleOfPrimitive)
-
-    def updateScreen():
-        pygame.display.update()
-        fpsClock.tick(FPS)
+        pygame.display.flip()
+    
+    pygame.quit() # for a smooth quit
+if __name__ == "__main__":
+    main()

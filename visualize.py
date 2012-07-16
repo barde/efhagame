@@ -8,7 +8,7 @@ from decimal import *
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from pprint import pprint
 
-datalen = 40
+datalen = 20
 
 def readCSVData(inputFile):
         lines = sum(1 for line in open(inputFile))
