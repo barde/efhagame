@@ -12,7 +12,7 @@
 ###################################################################################
 ###################################################################################
 
-import pygame, math
+import pygame, math, random
 from pygame.locals import *
 pygame.init()
 
@@ -164,28 +164,55 @@ class Sprite(pygame.sprite.Sprite):
             self.trueX += self.speedX # store true x decimal values
             self.trueY += self.speedY
             self.rect.center = (round(self.trueX),round(self.trueY)) # apply values to sprite.center
+
+class BrainSprite(pygame.sprite.Sprite):
+    def __init__(self):
+         pygame.sprite.Sprite.__init__(self)
+         self.image = pygame.image.load("brain.png").convert_alpha()
+         self.rect = self.image.get_rect()
+
+
                 
 class MovementDesignator():
     def __init__(self,screen):
         self.screen = screen # get the screen as main surface
-        self.percent = 100 # scaled from 1-100: max value is real 246 pixel
+        self.percentX = 100 # scaled from 1-100
+        self.percentY = 100 # scaled from 1-100: max value is real 246 pixel
 
     def update(self):
-        pygame.draw.rect(self.screen,[0,255,0],[20,20,204,30],2)
-        if self.percent:
-            self.realValue = 2 * self.percent
-            pygame.draw.line(self.screen, (255,0,0),(22,35),(self.realValue + 22,35), 27) # surface, color of lines, uhh, points of lines, width of lines)
+        pygame.draw.rect(self.screen,[0,255,0],[20,screenheight - 100,204,30],2) # graph for X coordination
+        pygame.draw.rect(self.screen,[0,0,255],[screenwidth - 100 , screenheight - 250 , 31, 200],2) # graph for Y coordination
+        if self.percentX:
+            self.realValueX = 2 * self.percentX
+            pygame.draw.line(self.screen, (255,0,0),(22,screenheight - 85),(self.realValueX + 22,screenheight - 85), 27) 
+        if self.percentY:
+            self.realValueY = 2 * self.percentY
+            pygame.draw.line(self.screen, (255,0,0),(screenwidth - 84 ,screenheight - 52),(screenwidth - 84, (100 - self.realValueY) + screenheight - 148), 27) 
+        else:
+            pygame.draw.line(self.screen, (255,0,0),(screenwidth - 84 ,screenheight - 52),(screenwidth - 84, screenheight - 52 ), 27) 
 
-    def get_graph_value(self):
-        return self.percent
 
-    def increase_graph(self):
-        if self.percent < 100:
-            self.percent += 10
+    def increase_graphX(self):
+        if self.percentX < 100:
+            self.percentX += 10
 
-    def decrease_graph(self):
-        if self.percent > 0:
-            self.percent -= 10
+    def decrease_graphX(self):
+        if self.percentX > 0:
+            self.percentX -= 10
+
+    def increase_graphY(self):
+        if self.percentY < 100:
+            self.percentY += 10
+
+    def decrease_graphY(self):
+        if self.percentY > 0:
+            self.percentY -= 10
+
+    def get_absolute_position(self):
+        screenX = screenwidth * self.percentX / 100
+        screenY = screenheight - (screenheight * self.percentY / 100)
+        #screenY = screenheight * self.percentY / 100
+        return (screenX,screenY)
 
 
 
@@ -199,9 +226,32 @@ def main():
     line_points = [] # make a list for points
     line_color = (0, 255, 255) # color of the lines
 
-    sprite = Sprite() # create the sprite
+    sprite = Sprite() # create the sprite for the player
 
-    designator = MovementDesignator(screen)
+    
+    designator = MovementDesignator(screen) # show the movement vector as a compass like thing
+
+    #get us some targets
+    brain_sprite_list = pygame.sprite.RenderPlain()
+    for i in range(7):
+        brain_sprite = BrainSprite()
+        brain_sprite.rect.x = random.randrange(screenwidth)
+        brain_sprite.rect.y = random.randrange(screenheight - 200)
+        brain_sprite_list.add(brain_sprite)
+
+    #write the points
+    fontObj = pygame.font.Font('ts.ttf', 26)
+    scoreTextSurfaceObj = fontObj.render('Eat the Brains!', True, (0,0,0), (155,0,0))
+    scoreTextRectObj = scoreTextSurfaceObj.get_rect()
+    scoreTextRectObj.center = (screenwidth - 90,  screenheight - 20)
+
+#connection status
+    statusTextSurfaceObj = fontObj.render('Status: Red', True, (0,0,0), (155,0,0))
+    statusTextRectObj = statusTextSurfaceObj.get_rect()
+    statusTextRectObj.center = (120,  screenheight - 20)
+
+    score = 0
+
 
     clock = pygame.time.Clock()
     running = True
@@ -212,7 +262,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                
+
             if event.type == MOUSEBUTTONDOWN:
                 sprite.target = event.pos # set the sprite.target to the mouse click position
                 line_points.append(event.pos) # add that point to the line list
@@ -220,21 +270,47 @@ def main():
                 if event.key == K_SPACE:
                     sprite.reset_position()
                     line_points.append([screenwidth / 2, screenheight - 50])
+                    scoreTextSurfaceObj = fontObj.render('Eat the Brains!', True, (0,0,0), (155,0,0))
+                    hitlist = None
+                    score = 0
                 if event.key == K_UP:
-                    designator.increase_graph()
+                    designator.increase_graphX()
                 if event.key == K_DOWN:
-                    designator.decrease_graph()
-                
-        screen.blit(background_color, (0,0))
-        
-        
-        designator.update()
+                    designator.decrease_graphX()
+                if event.key == K_RIGHT:
+                    designator.increase_graphY()
+                if event.key == K_LEFT:
+                    designator.decrease_graphY()
+                if event.key == K_RETURN:
+                    pos = designator.get_absolute_position()
+                    sprite.target =  pos
+                    line_points.append(pos)
+
+
+
+        screen.blit(background_color, (0,0)) #fill the screen with black colour
+
+
+        designator.update() # for movement options
+
+        brain_sprite_list.draw(screen) # the targets to hit
+
 
         sprite.update() # update the sprite
         screen.blit(sprite.image, sprite.rect.topleft) # blit the sprite to the screen
-        
+
         if len(line_points) > 1: # if there are enough points to draw a line
             pygame.draw.lines(screen, line_color, False, line_points, 2) # surface, color of lines, uhh, points of lines, width of lines)
+
+        #collision detection and high score
+        hitlist = pygame.sprite.spritecollide(sprite, brain_sprite_list, True)
+        if len(hitlist) > 0:
+                score +=len(hitlist)
+                scoreTextSurfaceObj = fontObj.render('Score: ' + str(score), True, (0,0,0), (155,0,0))
+                print "hit"
+
+        screen.blit(scoreTextSurfaceObj, scoreTextRectObj) # show the score
+        screen.blit(statusTextSurfaceObj, statusTextRectObj) # show the status
 
         pygame.display.flip()
     
