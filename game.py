@@ -12,7 +12,7 @@
 ###################################################################################
 ###################################################################################
 
-import pygame, math, random
+import pygame, math, random, thread
 from pygame.locals import *
 pygame.init()
 
@@ -172,7 +172,10 @@ class BrainSprite(pygame.sprite.Sprite):
          self.rect = self.image.get_rect()
 
 
-                
+'''This class is the functional and visual representation of the 
+expected user defined movement. The two axles are representative for 
+X and Y movement.
+Finally, a movement vector will be created.'''
 class MovementDesignator():
     def __init__(self,screen):
         self.screen = screen # get the screen as main surface
@@ -180,16 +183,16 @@ class MovementDesignator():
         self.percentY = 100 # scaled from 1-100: max value is real 246 pixel
 
     def update(self):
-        pygame.draw.rect(self.screen,[0,255,0],[20,screenheight - 100,204,30],2) # graph for X coordination
-        pygame.draw.rect(self.screen,[0,0,255],[screenwidth - 100 , screenheight - 250 , 31, 200],2) # graph for Y coordination
+        pygame.draw.rect(self.screen,[50,50,50],[20,screenheight - 100,204,30],2) # graph for X coordination
+        pygame.draw.rect(self.screen,[50,50,50],[screenwidth - 100 , screenheight - 250 , 31, 200],2) # graph for Y coordination
         if self.percentX:
             self.realValueX = 2 * self.percentX
             pygame.draw.line(self.screen, (255,0,0),(22,screenheight - 85),(self.realValueX + 22,screenheight - 85), 27) 
         if self.percentY:
             self.realValueY = 2 * self.percentY
-            pygame.draw.line(self.screen, (255,0,0),(screenwidth - 84 ,screenheight - 52),(screenwidth - 84, (100 - self.realValueY) + screenheight - 148), 27) 
+            pygame.draw.line(self.screen, (255,0,0),(screenwidth - 85 ,screenheight - 52),(screenwidth - 85, (100 - self.realValueY) + screenheight - 148), 28) 
         else:
-            pygame.draw.line(self.screen, (255,0,0),(screenwidth - 84 ,screenheight - 52),(screenwidth - 84, screenheight - 52 ), 27) 
+            pygame.draw.line(self.screen, (255,0,0),(screenwidth - 85 ,screenheight - 52),(screenwidth - 85, screenheight - 52 ), 28) 
 
 
     def increase_graphX(self):
@@ -219,7 +222,7 @@ class MovementDesignator():
 def main():
 
     screen = pygame.display.set_mode((screenwidth,screenheight))
-    pygame.display.set_caption("efhagame - Hit all Brains")
+    pygame.display.set_caption("efhagame - Eat all Brains")
     background_color = pygame.Surface(screen.get_size()).convert()
     background_color.fill((0,0,0))
 
@@ -245,10 +248,17 @@ def main():
     scoreTextRectObj = scoreTextSurfaceObj.get_rect()
     scoreTextRectObj.center = (screenwidth - 90,  screenheight - 20)
 
-#connection status
+    #connection status
     statusTextSurfaceObj = fontObj.render('Status: Red', True, (0,0,0), (155,0,0))
     statusTextRectObj = statusTextSurfaceObj.get_rect()
     statusTextRectObj.center = (120,  screenheight - 20)
+
+    #sound init
+    plopSound = pygame.mixer.Sound('plop.ogg')
+
+    #background image
+    backgroundImage = pygame.image.load('background.png')
+
 
     score = 0
 
@@ -289,6 +299,7 @@ def main():
 
 
         screen.blit(background_color, (0,0)) #fill the screen with black colour
+        screen.blit(backgroundImage, (0,0))
 
 
         designator.update() # for movement options
@@ -306,8 +317,10 @@ def main():
         hitlist = pygame.sprite.spritecollide(sprite, brain_sprite_list, True)
         if len(hitlist) > 0:
                 score +=len(hitlist)
-                scoreTextSurfaceObj = fontObj.render('Score: ' + str(score), True, (0,0,0), (155,0,0))
+                scoreTextSurfaceObj = fontObj.render('Total Score: ' + str(score), True, (0,0,0), (155,0,0))
                 print "hit"
+                thread.start_new_thread(plopSound.play,())
+
 
         screen.blit(scoreTextSurfaceObj, scoreTextRectObj) # show the score
         screen.blit(statusTextSurfaceObj, statusTextRectObj) # show the status
