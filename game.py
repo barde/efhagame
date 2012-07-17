@@ -171,6 +171,20 @@ class BrainSprite(pygame.sprite.Sprite):
          self.image = pygame.image.load("brain.png").convert_alpha()
          self.rect = self.image.get_rect()
 
+class BrainSpriteCollection():
+    def __init__(self):
+        self.brainSpriteList = pygame.sprite.RenderPlain()
+    def reset(self):
+        self.brainSpriteList.empty()
+        for i in range(7):
+            brainSprite = BrainSprite()
+            brainSprite.rect.x = random.randrange(screenwidth)
+            brainSprite.rect.y = random.randrange(screenheight - 200)
+            self.brainSpriteList.add(brainSprite)
+    def returnList(self):
+        return self.brainSpriteList
+
+
 
 '''This class is the functional and visual representation of the 
 expected user defined movement. The two axles are representative for 
@@ -228,19 +242,15 @@ def main():
 
     line_points = [] # make a list for points
     line_color = (0, 255, 255) # color of the lines
+    line_points.append([screenwidth/2,screenheight-50])
 
     sprite = Sprite() # create the sprite for the player
 
     
     designator = MovementDesignator(screen) # show the movement vector as a compass like thing
 
-    #get us some targets
-    brain_sprite_list = pygame.sprite.RenderPlain()
-    for i in range(7):
-        brain_sprite = BrainSprite()
-        brain_sprite.rect.x = random.randrange(screenwidth)
-        brain_sprite.rect.y = random.randrange(screenheight - 200)
-        brain_sprite_list.add(brain_sprite)
+    brainSpriteCollection = BrainSpriteCollection()
+    brainSpriteCollection.reset()
 
     #write the points
     fontObj = pygame.font.Font('ts.ttf', 26)
@@ -267,7 +277,7 @@ def main():
     running = True
 
     while running:
-        clock.tick(30)
+        clock.tick(30) #30 fps
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -295,6 +305,9 @@ def main():
                     pos = designator.get_absolute_position()
                     sprite.target =  pos
                     line_points.append(pos)
+                if event.key == K_r:
+                    brainSpriteCollection.reset()
+
 
 
 
@@ -304,7 +317,7 @@ def main():
 
         designator.update() # for movement options
 
-        brain_sprite_list.draw(screen) # the targets to hit
+        brainSpriteCollection.returnList().draw(screen) # the targets to hit
 
 
         sprite.update() # update the sprite
@@ -314,7 +327,7 @@ def main():
             pygame.draw.lines(screen, line_color, False, line_points, 2) # surface, color of lines, uhh, points of lines, width of lines)
 
         #collision detection and high score
-        hitlist = pygame.sprite.spritecollide(sprite, brain_sprite_list, True)
+        hitlist = pygame.sprite.spritecollide(sprite, brainSpriteCollection.returnList(), True)
         if len(hitlist) > 0:
                 score +=len(hitlist)
                 scoreTextSurfaceObj = fontObj.render('Total Score: ' + str(score), True, (0,0,0), (155,0,0))
