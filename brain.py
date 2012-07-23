@@ -31,8 +31,8 @@ class Brain():
             pprint.pprint(csvData)
             self.printGraph(csvData)
         if not simMode:
-            #self.link = BaseLink.BaseLink('/dev/ttyUSB0')
-            self.link = BaseLink.BaseLink('/dev/ttyO2')
+            self.link = BaseLink.BaseLink('/dev/ttyUSB0')
+            #self.link = BaseLink.BaseLink('/dev/ttyO2')
             self.parser = Parser.Parser()
             self.link.addCallback(self.parser.update)
             self.parser.addEventCallback(self.updateEvent)
@@ -41,7 +41,8 @@ class Brain():
 
 
     def getBins(self):
-        return self.bins
+        if self.bins != None:
+            return self.bins
 
 
 

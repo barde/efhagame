@@ -8,8 +8,11 @@
 from pybrain import *
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.datasets import SupervisedDataSet
+from pybrain.tools.xml.networkwriter import NetworkWriter
+from pybrain.tools.xml.networkreader import NetworkReader
 import os.path
 import optparse
+import time
 import csv
 from decimal import *
 from pylab import *
@@ -23,11 +26,12 @@ def DEBUG(msg):
             print msg
 
 class AI():
-    def __init__(self,inputFile=False,trainMode=False,realtimeMode=False):
+    def __init__(self,inputFile=False,trainMode=False,realtimeMode=False,loadNeuralNetwork=False):
     #Object variables for initialisation
         self.inputFile = inputFile
         self.trainMode = trainMode
         self.realtimeMode = realtimeMode
+        self.loadNeuralNetwork = loadNeuralNetwork
 
 
 
@@ -49,6 +53,10 @@ class AI():
         DEBUG(self.neuralNet)
         DEBUG("--------")
 
+
+        if self.loadNeuralNetwork:
+            self.neuralNet = NetworkReader.readFrom('lastNetwork.xml')
+
         if self.inputFile:
             if not os.path.exists(inputFile):
                 print "File for CSV parsing does not exist!"
@@ -66,6 +74,7 @@ class AI():
                 trainer = BackpropTrainer(self.neuralNet,ds,verbose=True)
                 trainer.trainUntilConvergence(maxEpochs=10)
                 self.printGraph(ds)
+                NetworkWriter.writeToFile(self.neuralNet, "lastNetwork.xml")
 
 #read the saved data and use it in the network
             for line in savedData:
@@ -76,17 +85,47 @@ class AI():
             DEBUG("Final weigths:")
             DEBUG(self.neuralNet.params)
 
+#now fun begins. this is the standard mode this module runs in.
         if self.realtimeMode:
             print "We should start now!"
             self.brain = Brain()
-            lines = self.brain.getBins()
-            pprint(lines)
-#init the brain interface
+            if os.path.isfile("lastNetwork.xml"):
+                while True:
+                    lines = self.brain.getBins()
+                    print(lines)
+            else:
+#we do a realtime training of the neural network
+                print "No trained network exists!"
+                time.sleep(1)
+                print "Will do on-line training!"
+                time.sleep(1)
+                print "Hold tight for 10 seconds"
 
-#makeTrainingSet(oneData);
+                tempBinWriter = csv.writer(open("temp.csv", 'ab'))
 
-#paint it in realtime
-#http://www.scipy.org/Cookbook/Matplotlib/Animations
+                for i in range (1,10):
+                    time.sleep(1)
+                    bins = self.brain.getBins()
+                    print bins
+                    tempBinWriter.writerow(bins)
+
+
+                tempSavedData = self.readCSVData("temp.csv")
+
+                ds = self.makeTrainingSet(tempSavedData)
+                trainer = BackpropTrainer(self.neuralNet,ds,verbose=True)
+                trainer.trainUntilConvergence(maxEpochs=10)
+
+    def getRandomness(self):
+        if self.realtimeMode:
+            bins = self.brain.getBins()
+            rand = 1
+            for i in range(7):
+                rand *= bins[i] * 100
+        return rand
+
+    def getNeuralResult(self,data):
+
 
 
     def makeTrainingSet(self,savedData):
@@ -192,6 +231,13 @@ if __name__ == '__main__':
         help = "draws realtime outputs from brain wave measurment interface",
         default = False)
 
+    parser.add_option("-n", "--network",
+        dest = "loadNeuralNetwork",
+        action = "store_true",
+        help = "load trained neural network from last training",
+        default = False)
+
+
     parser.add_option("-i", "--input",
     action="store",
     type="string",
@@ -200,4 +246,4 @@ if __name__ == '__main__':
     dest="inputFile")
 
     (options, args) = parser.parse_args()
-    ai = AI(options.inputFile,options.trainMode,options.realtimeMode)
+    ai = AI(options.inputFile,options.trainMode,options.realtimeMode,options.loadNeuralNetwork)

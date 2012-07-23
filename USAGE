@@ -1,0 +1,13 @@
+Some steps are required before using the game with a customized brain interface.
+
+First, we need to gather some data from the brain interface.
+This is done with:
+python brain.py -o CSVFILE
+
+Next step is to train the neural network with the parametres. This is done with:
+python ai.py -t -i CSVFILE
+
+Now a file called lastNetwork.xml should be available in the current directory. This contains the 
+network with its customized parametres. This file should be kept save as every next step depends on it.
+
+The other method is to just run it without the file so it will be created on-line!
