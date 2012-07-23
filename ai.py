@@ -79,7 +79,7 @@ class AI():
         if self.realtimeMode:
             print "We should start now!"
             self.brain = Brain()
-            lines = self.brain.bins
+            lines = self.brain.getBins()
             pprint(lines)
 #init the brain interface
 
