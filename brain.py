@@ -13,8 +13,9 @@ import os.path
 from decimal import *
 
 def DEBUG(msg):
-    if(options.debugMode):
-        print msg
+    if 'options' in locals():
+        if(options.debugMode):
+            print msg
 
 
 
