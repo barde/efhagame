@@ -41,9 +41,7 @@ class Brain():
 
 
     def getBins(self):
-        f = slice['FrequencyBins']
-        bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
-        return bins
+        return self.bins
 
 
 
@@ -83,13 +81,13 @@ class Brain():
                 pprint.pprint(slice['Waveform'])
 
 #print out the fractions of waves
+        if len(slice['FrequencyBins'].values()) == 7:
+            f = slice['FrequencyBins']
+            self.bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
         if self.verbose:
-            if len(slice['FrequencyBins'].values()) == 7:
-                f = slice['FrequencyBins']
-                bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
-                for bin in bins:
-                    print bin,
-                print ""
+            for bin in bins:
+                print bin,
+            print ""
 
 #timestamps carry important data, seldomly
     def updateEvent(self, timestamp, timestamp_subsec, version, event):
