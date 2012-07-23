@@ -15,12 +15,10 @@ Made in 2012 by Bartholomäus Dedersen
 Description:
 ------------
 
-* This game is nuts
-* Your aim is to watch your own brain's doing or click the graphic
-* Turn off your soundcard
+* This game is with zombies
+* Your aim is to control your brain to shoot the brains
 * Some requirements in hardware are needed for proper testing
 * Soldering skills, too
-* All correleation with existing things is purely coincidential or just happened by inspiration
 
 Requirements
 ------------
@@ -64,9 +62,7 @@ If the included test program runs fine you are good to go. Otherwise use the sou
 Usage
 ------
 
-Probably educational purposes as the png file is replaceable with whatever you desire.
-
-We are still on getting some sample data to calibrate the brain interface.
+This project can easily extended to multiple vectors if a better brain interface is available.
 
 Very Boring legal stuff
 ------------------
