@@ -15,9 +15,12 @@ from decimal import *
 from pylab import *
 import numpy
 
+from brain import Brain
+
 def DEBUG(msg):
-    if(options.debugMode):
-        print msg
+    if 'options' in locals():
+        if(options.debugMode):
+            print msg
 
 class AI():
     def __init__(self,inputFile=False,trainMode=False,realtimeMode=False):
@@ -74,6 +77,10 @@ class AI():
             DEBUG(self.neuralNet.params)
 
         if self.realtimeMode:
+            print "We should start now!"
+            self.brain = Brain()
+            lines = self.brain.bins
+            pprint(lines)
 #init the brain interface
 
 #makeTrainingSet(oneData);

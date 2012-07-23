@@ -40,6 +40,12 @@ class Brain():
 
 #slices arrive every second and carry all important data, mostly
     def updateSlice(self, slice):
+        self.sqi = slice['SQI']
+
+        f = slice['FrequencyBins']
+        self.bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
+
+
         if self.outputFile:
             binWriter = csv.writer(open(self.outputFile, 'ab'))
             if len(slice['FrequencyBins'].values()) == 7:
