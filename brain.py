@@ -25,6 +25,7 @@ class Brain():
         self.verbose = verbose
         self.outputFile = outputFile
         self.debug = debug
+        self.bins = None
         if csvData:
             csvData = self.meanSavedData(csvData)
             pprint.pprint(csvData)
@@ -39,14 +40,17 @@ class Brain():
             self.link.start()
 
 
+    def getBins(self):
+        f = slice['FrequencyBins']
+        bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
+        return bins
+
+
+
 
 #slices arrive every second and carry all important data, mostly
     def updateSlice(self, slice):
         self.sqi = slice['SQI']
-
-        f = slice['FrequencyBins']
-        self.bins = [f['2-4'],f['4-8'],f['8-13'],f['11-14'],f['13-18'],f['18-21'],f['30-50']]
-
 
         if self.outputFile:
             binWriter = csv.writer(open(self.outputFile, 'ab'))
