@@ -124,7 +124,9 @@ class AI():
                 rand *= bins[i] * 100
         return rand
 
-    def getNeuralResult(self,data):
+    def getNeuralResult(self):
+        return self.neuralNet.activate(self.brain.getBins())
+
 
 
 
