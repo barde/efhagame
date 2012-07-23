@@ -11,8 +11,8 @@ class BrainConnection():
         self.lastValue = self.ai.getNeuralResult()
         self.directionValue = 50
 
-        while True:
-            print self.getDirection()
+        #while True:
+        #    print self.getDirection()
 
     #we get a directional vector between 0 and 100 which is influenced by the 
     #returned values from the brain interface
@@ -32,8 +32,8 @@ class BrainConnection():
 
 
     #returns entropy data depending on the analogue converted data from the brain interface
-    def getRandomness(self):
-        return random.random()
+    def getRandomness(self,randrange):
+        return random.randrange(randrange)
 
 
 if __name__ == '__main__':

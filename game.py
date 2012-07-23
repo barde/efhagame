@@ -14,10 +14,14 @@
 
 import pygame, math, random, thread
 from pygame.locals import *
+
+from glue import BrainConnection
 pygame.init()
 
 screenwidth = 800
 screenheight = 600
+
+bc = BrainConnection()
 
 class Vector():
     '''
@@ -178,8 +182,11 @@ class BrainSpriteCollection():
         self.brainSpriteList.empty()
         for i in range(7):
             brainSprite = BrainSprite()
-            brainSprite.rect.x = random.randrange(screenwidth)
-            brainSprite.rect.y = random.randrange(screenheight - 200)
+            #brainSprite.rect.x = random.randrange(screenwidth)
+            #brainSprite.rect.y = random.randrange(screenheight - 200)
+#our brain interface is an enchanced random number generator with a seed defined by the user's mental state
+            brainSprite.rect.x = bc.getRandomness(screenwidth)
+            brainSprite.rect.y = bc.getRandomness(screenheight - 200)
             self.brainSpriteList.add(brainSprite)
     def returnList(self):
         return self.brainSpriteList
@@ -225,6 +232,12 @@ class MovementDesignator():
         if self.percentY > 0:
             self.percentY -= 10
 
+    def setX(self,x):
+        self.percentX = x
+
+    def setY(self,y):
+        self.percentY = y
+
     def get_absolute_position(self):
         screenX = screenwidth * self.percentX / 100
         screenY = screenheight - (screenheight * self.percentY / 100)
@@ -246,8 +259,8 @@ def main():
 
     sprite = Sprite() # create the sprite for the player
 
-    
     designator = MovementDesignator(screen) # show the movement vector as a compass like thing
+    designatorSelector = 0
 
     brainSpriteCollection = BrainSpriteCollection()
     brainSpriteCollection.reset()
@@ -307,8 +320,18 @@ def main():
                     line_points.append(pos)
                 if event.key == K_r:
                     brainSpriteCollection.reset()
+                if event.key == K_c:
+                    if designatorSelector == 0:
+                        designatorSelector = 1
+                    else:
+                        designatorSelector = 0
 
 
+        #the stuff from the brain connector
+        if designatorSelector == 0:
+            designator.setX(bc.getDirection())
+        else:
+            designator.setY(bc.getDirection())
 
 
         screen.blit(background_color, (0,0)) #fill the screen with black colour
