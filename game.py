@@ -15,13 +15,11 @@
 import pygame, math, random, thread
 from pygame.locals import *
 
-from glue import BrainConnection
 pygame.init()
 
 screenwidth = 800
 screenheight = 600
 
-bc = BrainConnection()
 
 class Vector():
     '''
@@ -185,8 +183,6 @@ class BrainSpriteCollection():
             #brainSprite.rect.x = random.randrange(screenwidth)
             #brainSprite.rect.y = random.randrange(screenheight - 200)
 #our brain interface is an enchanced random number generator with a seed defined by the user's mental state
-            brainSprite.rect.x = bc.getRandomness(screenwidth)
-            brainSprite.rect.y = bc.getRandomness(screenheight - 200)
             self.brainSpriteList.add(brainSprite)
     def returnList(self):
         return self.brainSpriteList
@@ -328,10 +324,6 @@ def main():
 
 
         #the stuff from the brain connector
-        if designatorSelector == 0:
-            designator.setX(bc.getDirection())
-        else:
-            designator.setY(bc.getDirection())
 
 
         screen.blit(background_color, (0,0)) #fill the screen with black colour

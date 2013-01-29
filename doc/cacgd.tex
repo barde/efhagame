@@ -1,0 +1,109 @@
+\documentclass[bibtotocnumbered, headsepline,normalheadings,12pt]{report}
+\usepackage[utf8x]{inputenc}
+\usepackage{color}
+\usepackage[polutonikogreek,english]{babel}
+\usepackage{ucs}
+\usepackage{booktabs}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{multirow}
+\usepackage{listings}
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true,showstringspaces=false,numbers=left,frame=single,prebreak=\mbox{$\hookleftarrow$}}
+\usepackage[hidelinks]{hyperref}
+\usepackage[a4paper,margin=2cm]{geometry} 
+\usepackage{scrpage}
+\usepackage{alltt}
+\usepackage{float}
+\usepackage{graphicx}
+\definecolor{darkblue}{rgb}{0,0,.5}
+\hypersetup{pdftex=true, colorlinks=false, breaklinks=true, citecolor=darkblue, linkcolor=darkblue, menucolor=darkblue, pagecolor=darkblue, urlcolor=darkblue,
+pdftitle={CACGD 2011 Practical Excercise Report},
+pdfauthor={Bartholomäus Dedersen},
+bookmarks=true,
+bookmarksnumbered=true,
+bookmarksopen=true,
+bookmarksopenlevel=2}
+\usepackage{tabularx}
+\pagestyle{headings}
+\newcommand{\gdir}%
+   {\foreignlanguage{polutonikogreek}}
+\usepackage{color}
+ \definecolor{light-gray}{gray}{0.80}
+\newcommand{\CS}{C\nolinebreak\hspace{-.05em}\raisebox{.6ex}{\scriptsize\bf \#}}
+
+\begin{document}
+
+
+
+\begin{titlepage}
+\thispagestyle{empty}
+ \begin{center}
+ \begin{figure}[htbp]
+    \centering
+     \includegraphics[width=0.75\textwidth]{pic/fhkiel.png} 
+\end{figure}
+
+  \vspace*{2.5cm}
+ {\bf \huge CACGD 2011 Practical Exercise Report}
+ \vspace*{1cm} \\
+ {\Large Master's Thesis\\}
+ \vspace{0.5cm}
+ {\Large \bfseries Bartholomäus Dedersen\\}
+ \vfill
+  \vspace*{1.5cm}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{l l}
+        Date of Excursion: & Summer 2011 \\ 
+        Place: & Iraklion, Krete, Greece \\ 
+        Course: & Information Technology \\
+        %Date: & 3.1.2013\\
+        Date: & \today\\
+    \end{tabular}
+\end{table}
+
+ \end{center}
+\end{titlepage}
+
+
+\begin{abstract}
+
+    In this report about the practical part of the ``Computational Aspects of Computer Games Development'' programme for two weeks in Krete a
+    game programming with the Python programming language is described. The controller is a neural interface for brainwave wavelength reception 
+    through three skin-applied electrodes. The game is themed after a fictional Cretan Zombie incursion after the actual event.
+
+\end{abstract}
+
+\tableofcontents \newpage
+
+
+\chapter{Introduction}
+\label{chap:intro}
+
+\chapter{CACGD Programme}
+\label{chap:cacgd}
+
+\chapter{Game Idea}
+\label{chap:idea}
+
+\chapter{Framework}
+\label{chap:framework}
+
+\chapter{Implementation}
+\label{chap:impl}
+
+\chapter{Evaluation}
+\label{chap:eva}
+
+\chapter{Summary}
+\label{chap:sum}
+
+\nocite{*}
+\bibliographystyle{acm}
+\bibliography{common}
+\listoffigures
+\lstlistoflistings
+\begingroup \let\clearpage\relax
+\listoftables \endgroup
+
+\end{document} 
