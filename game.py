@@ -180,8 +180,8 @@ class BrainSpriteCollection():
         self.brainSpriteList.empty()
         for i in range(7):
             brainSprite = BrainSprite()
-            #brainSprite.rect.x = random.randrange(screenwidth)
-            #brainSprite.rect.y = random.randrange(screenheight - 200)
+            brainSprite.rect.x = random.randrange(screenwidth)
+            brainSprite.rect.y = random.randrange(screenheight - 200)
 #our brain interface is an enchanced random number generator with a seed defined by the user's mental state
             self.brainSpriteList.add(brainSprite)
     def returnList(self):

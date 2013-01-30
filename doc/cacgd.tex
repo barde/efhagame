@@ -262,21 +262,122 @@ The topic was a general introduction to the idea of ubiquitous computing, availa
 George Papadourakis held the final presentation about Quake 3 and general first person shooters. Mainly, the final certificates were handed out 
 with a special souvenir from Crete.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{earlynode.png}%
+    \caption{Early Mobile Node. Source:~\cite{Chong}}
+    \label{fig:node}%
+\end{figure}
+
 
 \chapter{Game Idea}
 \label{chap:idea}
 
-background story:
-zombie attack on crete
-Graveyard inspired by Rethymno
-phaistos disk is the source of zombiism
+Starting a game is usually combined with the creation of concept art and background stories. The process is defined by the size of 
+the final game and its intended audience. Technical prerequisites should be defined and specified and alternatives to requirements 
+analysed.
+As the game is developed solely by the author and has a specific requirement of a brainwave scanner the planning parts of the 
+game are kept to the required minimal setup.
 
-zombies and easy understandable games on rise
-other similar games
+The background story is a fictional zombie incursion on the island of Crete. An unsuspecting student of the TEI finds a clay item
+similar to the Phaistos disc while on vacation in Rethymno. The mysterious ruins as depicted in~\ref{fig:ret} of the old town open imagination to many uses
+in previous times. Its last use was a fortress but the foundation and prominent place in the landscape suggest older uses.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{ret.jpg}%
+    \caption{Rethymno Ruins. Source: grieksegids.info}
+    \label{fig:ret}%
+\end{figure}
+
+Unknowingly, the student's action released a hidden curse from the ancient ruins. An unknown king from the past ordered the creation of this 
+last remnant for the protection against grave robbers. He could not decipher the ancient text on the disc, warning him of the effects of the curse.
+His failure resulted in a insatiable hunger for knowledge, more directly, for brains. He was turned into a Zombie.
+
+His aim is the collection of brain images, called sprites, but as the player is a Zombie he cannot use direct action. Only through his remaining will,
+i.e. the brainwaves, he can steer himself for calming his hunger.
+
+The time separation for an in-game action is defined by a specified time needed for the player to gain or loose concentration. One idea was to 
+keep the time with a on-screen countdown but the mere visibility of a clock altered the game's result to a monotonous output. Ideally, another 
+player is required to decide the time for committing the walking action towards the aim, i.e. the brain.
+For comparison a high-score counter is shown on the screen in addition to visual representation of the current status of the brain's emitted waves. 
+An acoustic signal shows the player if an object is hit.
+The acting player's in-game representation of a Zombie moves with acceleration, giving the difficulty of the game which consists of a 
+left or right vector and the initial power for the movement of the main sprite.
+
+Main aim of the game is to train the main player's ability to concentrate and relax on will. Experimental users reported a similarity to 
+meditation as techniques as Yoga contain elements of tension and release. 
+
+Other similar games include popular mobile platform games like ``Plants vs Zombies'' or ``Angry Birds'' while the interface part can be only found on
+experimental setups.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{game.png}%
+    \caption{Screenshot of Main Game}
+    \label{fig:screenshot}%
+\end{figure}
+
+Figure~\ref{fig:screenshot} shows the layout of the game elements in an actual screenshot.
+
+\begin{enumerate}
+\item Vertical designation indicator going from 0 to 180 degree from the bottom line of the game window.
+\item Collectable brain sprites will spawn in the screen to collect. Multiple items can be gathered with one player movement.
+\item Main game avatar at an lightly elevated position from screen bottom.
+\item Movement strength for the next shot.
+\end{enumerate}
+
+The background is from a computer generated image from a free database with many filters for the unobtrusive design. It is fitted for the
+Zombie theme as they are often shown combined in popular culture.
+
+First prototyped versions of the game as visible in the development history of the distributed development version control Git had various placeholder graphics
+until they were designed by the author's long term supplier of academic paintings. The screenshot shows the most current and final version.
+
+As an entertaining and immersive element the player avatar moved with friction:
+
+\[ F_\mathrm{f} \leq \mu F_\mathrm{n} \]
+
+where \( F_\mathrm{f} \) equals the resulting speed from applied friction on the original static movement speed \( F_\mathrm{n} \) from the 
+friction coefficient  \( \mu \). This factor is variable between the acceleration time until the main sprite reaches its furthermost position after
+one movement and the swinging-back at the end. The final movement resembles the feeling of having the player's avatar strung up on a rubber band. The
+friction is about 15\% higher in the last stage. 
+The effect on the player should be a more elastic feeling of the game in contrast to a static and preemptive movement. It can be compared to the
+object-throwing mechanism of ``Angry Birds'' where the bird flies with a ballistic angle towards its target.
+
+Another big part of the game idea is the planning and development of the interface part. Both indicators, vertical alignment and movement speed, are
+derived from the main player's cumulated brain waves over a period of time. The part is available at~\cite[p. 11--28]{pm}.
+
+Noteworthy, the description of the used neural network and its underlying idea and theory can be found at~\cite[p. 4--8]{pm}.
 
 \chapter{Framework}
 \label{chap:framework}
+
+The game and its required modules for accessing the brain waves base on different Python modules. The brainwave connection was 
+not locked to Python and is described in~\cite{pm}. This part will focus on the actual graphical engine and the neuronal network.
+
+In addition, the learning algorithms depend on neural learning frameworks. Other possible choices
+apart Python could have been Java as similar modules exist like Neuroph\footnote{\url{http://neuroph.sourceforge.net/}}.
+A choice for a graphics library or using an 2D game engine in Java could be jogre\footnote{\url{http://jogre.sourceforge.net/}}.
+
+The author is mostly acquainted with Python due to its usage in the Fachhochschule's own courses. As such, 
+pybrain\footnote{\url{http://pybrain.org/}} is taken for the neural network simulation. First experience were collected
+in the Neural Networks module from Mr. Meyer in using this framework. It is known for usage in other academic works as 
+displayed at \url{http://pybrain.org/pages/publications} and is by no means an amateur project.
+
+For rapid prototype game design a game engine called Pygame\url{http://www.pygame.org} is used. It has a wide support from multiple 
+hands-on tutorials to free learning books available and is especially made for beginners in game programming.
+
+\section{Pybrain}
+
+\section{Pygame}
+
+Pygame is a framework for game development in Python. It is focused on 2D development but not limited as bindings in OpenGL
+exist. Pygame itself uses the graphical output wrapper SDL, the Simple DirectMedia Layer. Through this abstraction the 
+operating system's native hardware accelerated libraries can be used.
+
+Professional and commercially available games are programmed with Pygame as for example the graphical storytelling game
+``Dangerous High School Girls In Trouble'' from~\url{http://www.mousechief.com/dhsg/index.html}.
+
 
 pygame
 neuronal network
