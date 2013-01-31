@@ -369,6 +369,25 @@ hands-on tutorials to free learning books available and is especially made for b
 
 \section{Pybrain}
 
+Pybrain's main use in Python is the simulation of neural networks. It supports supervised learning algorithms as Back-Propagation
+and also unsupervised learning from data analysis like K-Means Clustering. The additional networks are more numerous than 
+taught in one class of Neural Networks. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{nnet.png}%
+    \caption{Example for a Basic Neural Network. Source: \cite{pybrain2010jmlr}}
+    \label{fig:nnet}%
+\end{figure}
+
+\cite{pybrain2010jmlr} shows in figure~\ref{fig:nnet} a solution for the sieve problem. As Python is an interpreted language, 
+speed bottlenecks can occur. Pybrain has a part of its underlaying functions rewritten in C-Code with bindings to Python.
+
+One very important feature of Pybrain is the training module. The \texttt{dataset} object has a wide array of options to avoid programming
+with Pythonic arrays. Concretely, it means going through multiple fields of input or expected output value with an iteration. 
+
+Pybrain offers some visualisation wrappers around Pylab but the output is limited so the author used his own direct Pylab access.
+
 \section{Pygame}
 
 Pygame is a framework for game development in Python. It is focused on 2D development but not limited as bindings in OpenGL
@@ -378,17 +397,236 @@ operating system's native hardware accelerated libraries can be used.
 Professional and commercially available games are programmed with Pygame as for example the graphical storytelling game
 ``Dangerous High School Girls In Trouble'' from~\url{http://www.mousechief.com/dhsg/index.html}.
 
+The technical layout design is oriented to a graphic primitive object called \texttt{surface}. It can be used for displaying text
+or loading images from file sources. Rotating, movement and collision detection is included in the methods. Most instantiation 
+is handled through inherited classes. Initializing the main screen in windowed or full screen mode sets the whole resolution pixel 
+numerated into a surface called \texttt{pygame.display}.
+Next major best practice due to the online documentation from~\cite{pynew} is how to refresh the screen. As Pygame does 
+not use 3D acceleration of graphical extension hardware except indistinctly specified. It comes at a cost of stability and
+can disable inter-platform operability by not being able to run on Linux platforms.
+As a general rule of thumb only the modified image or textual \texttt{surface} objects should be repainted each frame. The
+practical problem comes with the layer laying in the back, i.e. the background in the last case. It will get painted black
+as in leaving a trail.
 
-pygame
-neuronal network
-pyserial
+Concluding the change of other \texttt{surface} objects a \texttt{display.flip()} repaints the background and tries to use
+hardware to speed up the process if available. For a smooth feeling for fluid movement perception one second of animation
+requires at lest 25 images. Therefore, a clock is running in the background is created which limits the output of frames 
+per second with the \texttt{clock.tick(25)}.
+
+Making the surfaces, redrawing them if needed and repainting the background can be put into one permanent \texttt{while:} structure.
+This could already be a very basic but running game.
+
+One additional topic for beginners not covered extensively on-line at~\cite{pynew} is the control interface. There are 
+basic object for mouse click and movement events but also joysticks are supported. Due to the object oriented structure
+key press events were not fully recognized when pressed simultaneously or in very short succession.
+
 
 \chapter{Implementation}
 \label{chap:impl}
 
-code
+After learning how to use the underlaying frameworks and accessing the brainwave scanner the game was programmed as a glue for all these 
+components. It is the practical hands-on project work on the two weeks programme.
 
-demo
+Most following work will use the explained frameworks in the previous chapter. The detailed explanation of the brain interface programming is 
+in~\cite{pm} as this part will concentrate on the game. 
+
+
+\begin{lstlisting}[language=Python,caption=Initialisation]
+import pygame, math, random, thread
+from pygame.locals import *
+
+pygame.init()
+
+screenwidth = 800
+screenheight = 600
+\end{lstlisting}
+
+Game relevant functions and objects are stored in the \textit{game.py} file. The above code shows it is loosely bound, not using 
+includes from the other objects like the brain interface or neural network. It was done to keep the file runnable without the special
+hardware for debugging purpose. Second line is for a direct name for the modules in \texttt{pygame.locals} as constant names for key press names.
+Screen size was adapted to fir on a small external screen like a projector. Automatic detection for full screen is possible but can be 
+a hindrance while programming as threads may fail thus leaving the whole application frozen.
+
+
+\begin{lstlisting}[float,language=Python,caption=Player Sprite Module, label=psprite]
+class Sprite(pygame.sprite.Sprite):
+    def __init__(self):
+        self.image = pygame.image.load("zombie.png").convert_alpha()
+        self.rect = self.image.get_rect()
+
+        self.reset_position()
+        self.speed = 3 
+
+        self.normal_friction = .95 
+        self.slowing_friction = .8
+
+        self.target = None 
+\end{lstlisting}
+
+The player's in-game avatar is kept in a module as his properties are very different from other game objects as shown in listing~\ref{psprite}. He is a graphics primitive from a 
+PNG picture which has its transparent alpha channels converted to fit into the background. It is an extension to the previous chapter \texttt{convert()} 
+in Pygame as the transparency is stored in a new dimension per pixel in addition to the three colors. Setting it to values around 100 could create a 
+half-transparent look.
+Friction is saved as an constant for the moving methods of the player's avatar. Targets get calculated when both movement vectors are set, i.e. horizontal
+and the initial speed.
+
+
+\begin{lstlisting}[float,language=Python,caption=Player's Avatar Movement,label=movement]
+    def update(self):
+        
+        self.dir = self.get_direction(self.target)
+        if self.dir:
+            
+            if self.distance_check(self.dist):
+                self.speedX += (self.dir[0] * (self.speed / 2))
+                self.speedY += (self.dir[1] * (self.speed / 2))
+                self.speedX *= self.slowing_friction
+                self.speedY *= self.slowing_friction
+            else:
+            [..]
+\end{lstlisting}
+
+In listing~\ref{movement} shown method is the player's avatar \texttt{update()} to recalculate the new position of the sprite and repaint it. Only the 
+first half of the method is shown which checks if a movement action was issued by the player. The conditional statement checks if 
+the traveled distance is above the estimated target position and if so slows the player's avatar down. The numerically higher 
+friction value is applied. Not shown is the equivalent code for normal movement and the drawing itself.  
+
+\begin{lstlisting}[float,language=Python,caption=Group of Targets,label=group]
+class BrainSpriteCollection():
+    def __init__(self):
+        self.brainSpriteList = pygame.sprite.RenderPlain()
+    def reset(self):
+        self.brainSpriteList.empty()
+        for i in range(7):
+            brainSprite = BrainSprite()
+            brainSprite.rect.x = random.randrange(screenwidth)
+            brainSprite.rect.y = random.randrange(screenheight - 200)
+            self.brainSpriteList.add(brainSprite)
+    def returnList(self):
+        return self.brainSpriteList
+\end{lstlisting}
+
+A single \texttt{BrainSprite} is put together in a group of 7 other sprites. They are stored in a list of sprites for 
+easier collision detection and resetting as visible in listing~\ref{group}. If the player's avatar hit one or more of the brain sprites an event is 
+called which removes the visible brain sprite from the game and add one point to the hit counter.
+Noteworthy to show the random initialisation of the single brain sprite's position. It never spawn at the bottom line of the
+screen to avoid strange player movement towards the opposite of the player's avatar viewing direction.
+The version of this source code excerpt for the brainwave scanner adds improved random numbers collected from the
+brain action of the player. Whether such numbers are numerically more random is explained in more detail in~\cite{pm}.
+
+The logically following source code of variable initialisation is skipped as it contains no especially interesting detail.
+
+
+\begin{lstlisting}[float,language=Python,caption=Start of Main Loop,label=mloop]
+clock = pygame.time.Clock()
+running = True
+
+while running:
+    clock.tick(30)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+\end{lstlisting}
+
+Main loop as described in the framework chapter about Pygame is displayed in the code of listing~\ref{mloop}. \texttt{running} is 
+a boolean variable for the determination of ending or continuing the loop. It is checked against at the top so 
+clicking on the window closing button or typing the operating systems own cancelling key press will abort the main loop thus
+the application after a cleanup.  
+More events are processed after the visible code excerpt like for events from the brainwave scanner or manual keyboard usage.
+The clock is set at 30 frames per second to give a smooth running perception to the player's eye.
+
+\begin{lstlisting}[float,language=Python,caption=Collison Detection,label=coll]
+hitlist = pygame.sprite.spritecollide(sprite, brainSpriteCollection.returnList(), True)
+        if len(hitlist) > 0:
+                score +=len(hitlist)
+                scoreTextSurfaceObj = fontObj.render('Total Score: ' + str(score), True, (0,0,0), (155,0,0))
+                print "hit"
+                thread.start_new_thread(plopSound.play,())
+\end{lstlisting}
+
+Last point of the shown code of the main game is the collision detection in listing~\ref{coll}. At first, the 
+amount of hit sprites in one frame are queried. Through the first method's \texttt{spritecollide()} parameters 
+the player's avatar is set in at first, following the group of collectable brain sprites and finally a \texttt{true} for
+removing a brain sprite of the visible and drawable list of targets. 
+The score is updated on each additional hit in a custom font in a special \texttt{surface}. It is also painted in red for 
+better visibility on the back and white background.
+A sound for acoustic notification of a scoring hit is played in a thread to not let the main thread wait for it finishing playing.
+
+Omitted source code of the game are the painting\footnote{Called blitting in Pygame's documentation} method calls and some minor 
+actions. 
+
+Another important part was the development of the neural network. Some code examples will be shown for the most interesting parts.
+
+The dozen import lines are not shown as the majority are alias calls to shorten the length of following module names. A module for
+reading and writing CSV\footnote{Comma Separated Files} is used for saving the training results of neural networks when adjusted for 
+a player. Graph creating modules from the Pylab framework are utilised for creating statistical comparison data between 
+runs of the recording session, i.e. one game run.
+
+\begin{lstlisting}[float,language=Python,caption=Design of the Neural Network, label=nnet]
+self.neuralNet = FeedForwardNetwork()
+        inLayer = LinearLayer(7)
+        hiddenLayer = SigmoidLayer(5)
+        outLayer = LinearLayer(1)
+
+        self.neuralNet.addInputModule(inLayer)
+        self.neuralNet.addModule(hiddenLayer)
+        self.neuralNet.addOutputModule(outLayer)
+
+        self.neuralNet.addConnection(FullConnection(inLayer,hiddenLayer))
+        self.neuralNet.addConnection(FullConnection(hiddenLayer,outLayer))
+
+        self.neuralNet.sortModules()
+\end{lstlisting}
+
+The code in~\ref{nnet} shows the code of the complete neural network. It is composed of seven input gates for the seven slices of the FFT 
+value from the brainwave scan. The input layer is fully connected to the hidden layer, i.e. every gate is connected to every gate in 
+a higher layer. The result is the single output gate. This setup was acquired through testing where a higher amount of hidden layer 
+stations resulted in lower speed and less amount in an unusable output value.  
+
+\begin{lstlisting}[float,language=Python,caption=Training of the Neural Network, label=ntrain]
+if self.trainMode:
+    ds = self.makeTrainingSet(savedData)
+    trainer = BackpropTrainer(self.neuralNet,ds,verbose=True)
+    trainer.trainUntilConvergence(maxEpochs=10)
+    self.printGraph(ds)
+    NetworkWriter.writeToFile(self.neuralNet, "lastNetwork.xml")
+\end{lstlisting}
+
+Listing~\ref{ntrain} shows the method calls for running backpropagation algorithms on the created neural network. Basically, it adjusts the threshold
+value of every gate according to a simulated training function which is seeded with mean values from a training session. The training session takes
+ten second and calculates a mean value for standardized brain wave ranges. These ranges indicate if a user is more or less mentally excited in a
+time frame. The \texttt{printGraph()} call is a reference to the lengthly image diagram object. The network and its connection weights and threshold values
+are saved with the network layout in a XML file. The file will be used for further training and is improving the ranges through every subsequent run.
+
+Not shown code of the practical part include the drawing functions, the loading and saving functions in CSV files and the parameter division for startup
+options. 
+
+
+\begin{lstlisting}[float,language=Python,caption=Generating Training Values, label=ngen]
+    def makeTrainingSet(self,savedData):
+        ds = SupervisedDataSet(7,1)
+        meanValue = self.getMeanValue(savedData)
+        correctionFactor = 0
+        for line in savedData:
+            correctionFactor += (line[0] - meanValue[0]) * 3
+            correctionFactor += (line[1] - meanValue[1]) * 2
+            correctionFactor += (line[2] - meanValue[2])
+            correctionFactor += (meanValue[3] - line[3])
+            correctionFactor += (meanValue[4] - line[4]) * 2
+            correctionFactor += (meanValue[5] - line[5]) * 3
+            correctionFactor += (meanValue[6] - line[6]) * 6
+            ds.addSample(line,correctionFactor)
+            correctionFactor = 0
+        return ds
+\end{lstlisting}
+
+In listing~\ref{ngen} the generation of training values are shown in code. A dataset is instantiated where the mean values of the previous runs 
+are fetched from another method. Their slices difference is a numerical value from the mean values and the current status including a changing factor.
+Lower indices of the arrays correlate with the frequency range starting from 2 Herz which are signs for slow spiking human neurons. Fast spiking neurons
+indicate mental activity but are generated with smaller amplitude. Concluding, a meditating or mentally engaged 
+player can get very visible action compared to a normal mind state.
+
+
 
 \chapter{Evaluation}
 \label{chap:eva}
@@ -404,7 +642,5 @@ learning algorithms
 \bibliography{common}
 \listoffigures
 \lstlistoflistings
-\begingroup \let\clearpage\relax
-\listoftables \endgroup
 
 \end{document} 
