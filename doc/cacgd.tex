@@ -70,7 +70,7 @@ bookmarksopenlevel=2}
 \begin{abstract}
 
     In this report about the practical part of the ``Computational Aspects of Computer Games Development'' programme for two weeks in Crete a
-    game programming with the Python programming language is described. The controller is a neural interface for brainwave wavelength reception 
+    game development process written in the Python programming language is described. The controller is a neural interface for brainwave wavelength reception 
     through three skin-applied electrodes. The game is themed after a fictional Cretan Zombie incursion after the actual event.
 
 \end{abstract}
@@ -89,7 +89,7 @@ Technical Educational Institute of Crete, a university with emphasis on applied 
 department of Computer Sciences, visible through the timetable.\footnote{Available at \url{https://cacgd2011.teicrete.gr/?q=content/program-lectures}.}.
 
 The author of this work was part of the team from the German Fachhochschule Kiel and reported his personal experience in an formerly online available
-diary. This report is supposed to contain the technical description of the proceeding practical lessen from the excursion. Worthwhile to mention 
+diary. This report is supposed to contain the technical description of the proceeding practical lesson from the excursion. Worthwhile to mention 
 members of the other college teams were not bound for such task as it functions as an addition to the regular curriculum of the event.
 Skills learned should be applied in the resulting game or educational entertainment tool.
 
@@ -279,7 +279,7 @@ analysed.
 As the game is developed solely by the author and has a specific requirement of a brainwave scanner the planning parts of the 
 game are kept to the required minimal setup.
 
-The background story is a fictional zombie incursion on the island of Crete. An unsuspecting student of the TEI finds a clay item
+The background story is a fictional zombie incursion on the island of Crete inspired by a poem. An unsuspecting student of the TEI finds a clay item
 similar to the Phaistos disc while on vacation in Rethymno. The mysterious ruins as depicted in~\ref{fig:ret} of the old town open imagination to many uses
 in previous times. Its last use was a fortress but the foundation and prominent place in the landscape suggest older uses.
 
@@ -364,7 +364,7 @@ pybrain\footnote{\url{http://pybrain.org/}} is taken for the neural network simu
 in the Neural Networks module from Mr. Meyer in using this framework. It is known for usage in other academic works as 
 displayed at \url{http://pybrain.org/pages/publications} and is by no means an amateur project.
 
-For rapid prototype game design a game engine called Pygame\url{http://www.pygame.org} is used. It has a wide support from multiple 
+For rapid prototype game design a game engine called Pygame~\url{http://www.pygame.org} is used. It has a wide support from multiple 
 hands-on tutorials to free learning books available and is especially made for beginners in game programming.
 
 \section{Pybrain}
@@ -624,18 +624,43 @@ In listing~\ref{ngen} the generation of training values are shown in code. A dat
 are fetched from another method. Their slices difference is a numerical value from the mean values and the current status including a changing factor.
 Lower indices of the arrays correlate with the frequency range starting from 2 Herz which are signs for slow spiking human neurons. Fast spiking neurons
 indicate mental activity but are generated with smaller amplitude. Concluding, a meditating or mentally engaged 
-player can get very visible action compared to a normal mind state.
+player can get very visible action compared to a normal mind state. Changing the switch between vertical and strength adjustment for the player's 
+avatar movement a key press by a third party or a static time countdown could be used. The time decision switching was inferior in most test runs 
+to the extend the results were random. An alternative could be the counting of a new deviation for sequent frames of brainwave recording until a low
+threshold is hit for a prolonged time. Usability is improved by reaching a certain plateau. 
 
 
 
 \chapter{Evaluation}
 \label{chap:eva}
 
-calibration time
-learning algorithms
+Improvements for the game part planned but cut include a high score save file with possibility to insert initials similar to old arcade machines.
+The implementation was stopped after most results deviated too strong to be comparable.
+
+Comparability is a big point connected to the phenomena of some test subjects not responding to the game at all. Their reported mind state was
+not correlating to the visible data from the brainwave scanner. A higher resolution hardware would have been the biggest investment for a better result
+as the used hardware in the project had a fixed one second resolution per data frame.  
+
+Calibration of the brainwave data adaptation to the game could be made better by forcing a lengthly standard train period. Tweaking the dataset for
+training the artificial network by usage of an unsupervised network is a possible extension as well. Hidden clues, i.e. correlations, could become visible
+by a Hebbian network.
+
+The game's graphics may could use moving sprites for legs and arms. A main menu for player selection would be certainly a must in a commercial release.
+Additional sprites for impassable objects like walls for some variety in game play could enhance the joy.
 
 \chapter{Summary}
 \label{chap:sum}
+
+Skills from the practical programme could be used for the practical part of game programming. The extend was limited to a general introduction to the 
+fields and inspirational presentations of similar approaches. Game programming in a bigger team is expected to be a different experienced as well as 
+deadlines for certain phases of game creation.
+
+The work is documented in two parts where the split goes after the more theoretical Neural Network design and test in~\cite{pm}. Moreover, the 
+hardware modification and software access to the raw data is described. Test series are shown and interpreted.
+Current report covers the development parts of the game and the used frameworks. Examples from the code are described as well as used algorithms and modules.
+
+A description of the learned topics from the excursion in relation to the practical game programming are described. An unofficial but suggested part is 
+the lost online diary with descriptions about Cretan adventures and experiments. A part of the results from the hands on lectures are documented online as well.  
 
 \nocite{*}
 \bibliographystyle{acm}
