@@ -26,18 +26,21 @@ Requirements
 So, at first you need a commercially available alarm clock which can be rebuit to a poor-man's
 brainwave scanner.
 
-You can buy it [here](http://goo.gl/qTycd) and support further actions on this attempt to use a 120$ device as you would
-use your joystick. ;)
+~~You can buy it [here](http://goo.gl/qTycd) and support further actions on this attempt to use a 120$ device as you would
+use your joystick. ;)~~
+The device was sadly discontiued by its producer.
 
 Next step is about accessing the Serial Debug Port on the back of your ZEO. _Attention:_ If you are not somewhat skilled with
 and soldering iron you should ask somebody to do it for you. You can destroy your device or even machine!
 
-[The instruction](http://zeorawdata.sourceforge.net/starting.html#interface-cable) can give you some hints.
+~~[The instruction](http://zeorawdata.sourceforge.net/starting.html#interface-cable) can give you some hints.~~
+You have to access the backside debug port of the ZEO. The instruction is not avaible anymore. There is a port for a TTL connection.
 
 Next go an install the firmware which allows direct access so you can do some magic with the included Python libary from former site.
 
-Probably a SD-card with at least 4 MB, the download requires a [registration](http://developers.myzeo.com/raw-data-library/) and 
+Probably a SD-card with at least 4 MB, ~~the download requires a [registration](http://developers.myzeo.com/raw-data-library/)~~ and 
 after a painless flashing procedure you can start using it.
+The custom firmware is no longer available.
 
 
 
@@ -85,4 +88,4 @@ Thanks
 ---------
 
 [Phialo](http://www.phialo.de) - Phialo Graphix Design
-[MyZeo](www.myzeo.com/) - ZEO Sleep quality measurement device(Look it up on [Amazon](http://goo.gl/qTycd))
+[MyZeo](www.myzeo.com/) - ZEO Sleep quality measurement device. The device was discontinued.
