@@ -35,7 +35,7 @@ Next step is about accessing the Serial Debug Port on the back of your ZEO. _Att
 and soldering iron you should ask somebody to do it for you. You can destroy your device or even machine!
 
 ~~[The instruction](http://zeorawdata.sourceforge.net/starting.html#interface-cable) can give you some hints.~~
-You have to access the backside debug port of the ZEO. The instruction is not avaible anymore. There is a port for a TTL connection.
+You have to access the backside debug port of the ZEO. The instruction is not available anymore. There is a port for a TTL connection.
 
 Next go an install the firmware which allows direct access so you can do some magic with the included Python libary from former site.
 
