@@ -6,6 +6,7 @@ Comp. Aspects of Game Programming
 
 Made in 2012 by Bartholomäus Dedersen
 
+The complete report for this project can be accessed [here](git@github.com:barde/efhagame.git)
 
 
 
