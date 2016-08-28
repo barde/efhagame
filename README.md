@@ -6,7 +6,7 @@ Comp. Aspects of Game Programming
 
 Made in 2012 by Bartholomäus Dedersen
 
-The complete report for this project can be accessed [here](http://debar.insomnia247.nl/neuro.pdf)
+The complete report for this project can be accessed [here](http://debar.insomnia247.nl/study/neuro.pdf)
 
 
 
